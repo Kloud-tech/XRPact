@@ -1,0 +1,27 @@
+{
+  "name": "xrpl-impact-fund",
+  "version": "1.0.0",
+  "description": "Transparent Regenerative Donation Engine on XRPL",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:all": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "deploy:contracts": "node scripts/deploy-contracts.js",
+    "seed": "node scripts/seed-ngos.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
