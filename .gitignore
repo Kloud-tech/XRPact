@@ -1,17 +1,65 @@
-# Environnements virtuels
-.venv/
-venv/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Fichiers Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Testing
+coverage/
+*.lcov
 
-# macOS
-.DS_Store
+# Production
+dist/
+build/
 
-# Outils divers
+# Environment variables
 .env
-.idea/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc
+.cache/
+.temp/
+*.tsbuildinfo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+.venv
+
+# Docker
+.dockerignore
+
+# Secrets
+secrets/
+*.pem
+*.key
