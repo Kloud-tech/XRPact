@@ -146,6 +146,13 @@ export const LandingHero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <button
+              onClick={() => document.getElementById('workflow-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="group relative px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-full font-bold text-lg shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
+              <span className="relative z-10">⚡ See How It Works</span>
+            </button>
+
+            <button
               onClick={() => navigate('/impact-map')}
               className="group relative px-8 py-4 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-full font-bold text-lg shadow-2xl hover:shadow-green-500/50 transition-all duration-300 hover:scale-105 flex items-center gap-2"
             >
@@ -159,13 +166,6 @@ export const LandingHero: React.FC = () => {
             >
               <span className="relative z-10">Start Donating</span>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-            </button>
-
-            <button
-              onClick={() => document.getElementById('impact-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300"
-            >
-              See Impact
             </button>
           </motion.div>
 

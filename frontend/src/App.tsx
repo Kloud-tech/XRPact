@@ -7,6 +7,8 @@
 import React from 'react';
 import { LandingHero } from './components/hero/LandingHero';
 import { ImpactHero } from './components/hero/ImpactHero';
+import { HumanImpactDashboard } from './components/dashboard/HumanImpactDashboard';
+import { WorkflowDiagram } from './components/workflow/WorkflowDiagram';
 import { PoolBalance } from './components/pool/PoolBalance';
 import { NGOList } from './components/ngo/NGOList';
 import { NFTGallery } from './components/nft/NFTGallery';
@@ -32,8 +34,20 @@ function App() {
       {/* Landing Hero Section */}
       <LandingHero />
 
+      {/* Human Impact Dashboard - Gamified & Positive */}
+      <section id="impact-dashboard-section" className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        <HumanImpactDashboard />
+      </section>
+
       {/* Impact Hero Section */}
       <ImpactHero />
+
+      {/* Complete Workflow Section */}
+      <section id="workflow-section" className="bg-gradient-to-br from-purple-50 to-blue-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <WorkflowDiagram />
+        </div>
+      </section>
 
       {/* Pool Statistics Section */}
       <section id="pool-section" className="bg-white">
@@ -133,6 +147,11 @@ function App() {
             <div>
               <h4 className="text-sm font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-gray-400">
+                <li>
+                  <a href="#workflow-section" className="hover:text-white transition-colors">
+                    Complete Workflow
+                  </a>
+                </li>
                 <li>
                   <a href="#pool-section" className="hover:text-white transition-colors">
                     Pool Statistics

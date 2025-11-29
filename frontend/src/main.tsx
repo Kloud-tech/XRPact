@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
 import { ImpactMapPage } from './pages/ImpactMapPage';
 import { AnalyticsDashboard } from './pages/AnalyticsDashboard';
+import { WorkflowPage } from './pages/WorkflowPage';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<App />} />
         <Route path="/impact-map" element={<ImpactMapPage />} />
         <Route path="/analytics" element={<AnalyticsDashboard />} />
+        <Route path="/workflow" element={<WorkflowPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
