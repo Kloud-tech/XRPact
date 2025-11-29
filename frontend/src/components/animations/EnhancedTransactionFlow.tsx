@@ -11,49 +11,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, TrendingUp, Coins, Activity } from 'lucide-react';
-
-interface Transaction {
-  id: string;
-  from: string;
-  to: string;
-  amount: number;
-  type: 'donation' | 'distribution' | 'yield';
-  timestamp: Date;
-}
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: '1', from: 'rD4x...7Kp2', to: 'Pool', amount: 500, type: 'donation', timestamp: new Date() },
-  { id: '2', from: 'Pool', to: 'rP9m...3Lq4', amount: 250, type: 'distribution', timestamp: new Date() },
-  { id: '3', from: 'AMM', to: 'Pool', amount: 12.4, type: 'yield', timestamp: new Date() },
-  { id: '4', from: 'rK2n...8Rv1', to: 'Pool', amount: 1000, type: 'donation', timestamp: new Date() },
-];
+import { ArrowRight, TrendingUp, Coins, Activity, Loader } from 'lucide-react';
+import { useTransactions, Transaction } from '../../hooks/useTransactions';
+import { usePoolData } from '../../hooks/usePoolData';
 
 export const EnhancedTransactionFlow: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
-  const [stats] = useState({
-    donationsToday: 2847,
-    distributedToday: 1924,
-    inProgress: 3,
-  });
+  const { transactions, loading, error } = useTransactions(5);
+  const { poolData } = usePoolData();
 
-  // Simulate new transactions
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newTx: Transaction = {
-        id: Math.random().toString(36).substr(2, 9),
-        from: `r${Math.random().toString(36).substr(2, 3)}...${Math.random().toString(36).substr(2, 3)}`,
-        to: Math.random() > 0.5 ? 'Pool' : `r${Math.random().toString(36).substr(2, 3)}...${Math.random().toString(36).substr(2, 3)}`,
-        amount: Math.floor(Math.random() * 1000) + 50,
-        type: ['donation', 'distribution', 'yield'][Math.floor(Math.random() * 3)] as Transaction['type'],
-        timestamp: new Date(),
-      };
+  const stats = {
+    donationsToday: poolData?.totalDonations || 0,
+    distributedToday: poolData?.totalDistributed || 0,
+    inProgress: Math.min(transactions.length, 5),
+  };
 
-      setTransactions((prev) => [newTx, ...prev.slice(0, 4)]);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const getTypeColor = (type: Transaction['type']) => {
     switch (type) {
@@ -86,6 +57,21 @@ export const EnhancedTransactionFlow: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10">
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Loader className="w-6 h-6 text-white animate-spin" />
+            <span className="text-white font-bold">Loading transactions...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="flex items-center justify-center gap-3 mb-6 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-2xl p-4">
+            <span className="text-white">⚠️ {error}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -125,10 +111,16 @@ export const EnhancedTransactionFlow: React.FC = () => {
 
         {/* Transactions List */}
         <div className="space-y-3">
+          {transactions.length === 0 && !loading && (
+            <div className="text-center py-8 text-white/60">
+              No transactions yet. Waiting for XRPL activity...
+            </div>
+          )}
+
           <AnimatePresence mode="popLayout">
             {transactions.map((tx, index) => (
               <motion.div
-                key={tx.id}
+                key={tx.id || `tx-${index}-${tx.timestamp}`}
                 initial={{ opacity: 0, x: -50, scale: 0.9 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 50, scale: 0.9 }}

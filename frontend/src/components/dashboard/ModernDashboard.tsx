@@ -29,7 +29,9 @@ import {
   Shield,
   ArrowRight,
   Activity,
+  Loader,
 } from 'lucide-react';
+import { usePoolData } from '../../hooks/usePoolData';
 
 // ==================== DONOR LEVEL BADGE ====================
 interface DonorLevel {
@@ -54,7 +56,9 @@ const DonorLevelBadge: React.FC<{ currentDonation: number }> = ({ currentDonatio
     ? DONOR_LEVELS[DONOR_LEVELS.findIndex(l => currentDonation < l.nextLevel)]
     : DONOR_LEVELS[DONOR_LEVELS.length - 1];
 
-  const progress = ((currentDonation - currentLevel.minDonation) / (currentLevel.nextLevel - currentLevel.minDonation)) * 100;
+  const progress = currentLevel.nextLevel > currentLevel.minDonation
+    ? ((currentDonation - currentLevel.minDonation) / (currentLevel.nextLevel - currentLevel.minDonation)) * 100
+    : 100;
 
   return (
     <motion.div
@@ -88,8 +92,8 @@ const DonorLevelBadge: React.FC<{ currentDonation: number }> = ({ currentDonatio
               </div>
               <div className="relative h-3 bg-green-950/50 rounded-full overflow-hidden border border-emerald-500/30">
                 <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(progress, 100)}%` }}
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${Math.min(Math.max(progress || 0, 0), 100)}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
                   className={`absolute inset-y-0 left-0 bg-gradient-to-r ${currentLevel.color} rounded-full`}
                 >
@@ -137,34 +141,38 @@ const MetricCard: React.FC<MetricCardProps> = ({ icon, label, value, gradient, d
   );
 };
 
-const ImpactMetricsGrid: React.FC = () => {
+const ImpactMetricsGrid: React.FC<{ poolData: any }> = ({ poolData }) => {
+  const totalProfit = poolData?.totalProfitsGenerated || 0;
+  const donors = poolData?.donorCount || 0;
+  const totalDonations = poolData?.totalDonations || 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <MetricCard
         icon={<Zap className="w-8 h-8 text-white" />}
-        label="Today's Impact Boost"
-        value="+12.4%"
+        label="Total Profits Generated"
+        value={`${totalProfit.toFixed(1)} XRP`}
         gradient="from-yellow-400 to-orange-500"
         delay={0}
       />
       <MetricCard
         icon={<Users className="w-8 h-8 text-white" />}
-        label="Donors This Week"
-        value="142"
+        label="Total Donors"
+        value={donors.toString()}
         gradient="from-cyan-400 to-blue-500"
         delay={0.1}
       />
       <MetricCard
         icon={<Heart className="w-8 h-8 text-white" />}
-        label="Families Helped"
-        value="218"
+        label="Total Donations"
+        value={`${totalDonations.toFixed(0)} XRP`}
         gradient="from-pink-400 to-red-500"
         delay={0.2}
       />
       <MetricCard
         icon={<Sparkles className="w-8 h-8 text-white" />}
-        label="XRP Generated Today"
-        value="32.4"
+        label="Pool Balance"
+        value={`${(poolData?.totalBalance || 0).toFixed(0)} XRP`}
         gradient="from-purple-400 to-pink-500"
         delay={0.3}
       />
@@ -427,6 +435,7 @@ const AIEngineHealth: React.FC = () => {
 // ==================== MAIN DASHBOARD ====================
 export const ModernDashboard: React.FC = () => {
   const [currentDonation] = useState(750);
+  const { poolData, loading, error } = usePoolData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 py-12 relative overflow-hidden">
@@ -436,11 +445,34 @@ export const ModernDashboard: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-400/5 rounded-full blur-3xl"></div>
 
       <div className="max-w-7xl mx-auto px-6 space-y-12 relative z-10">
+        {/* Loading State */}
+        {loading && (
+          <motion.div
+            className="flex items-center justify-center gap-3 bg-gradient-to-br from-emerald-800/80 to-teal-900/80 backdrop-blur-xl rounded-3xl p-8 shadow-lg border-2 border-emerald-500/30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <Loader className="w-6 h-6 text-lime-400 animate-spin" />
+            <span className="text-white font-bold">Loading pool data from XRPL testnet...</span>
+          </motion.div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <motion.div
+            className="flex items-center justify-center gap-3 bg-gradient-to-br from-red-800/80 to-orange-900/80 backdrop-blur-xl rounded-3xl p-6 shadow-lg border-2 border-red-500/30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <span className="text-white">⚠️ {error}</span>
+          </motion.div>
+        )}
+
         {/* Donor Level Badge */}
         <DonorLevelBadge currentDonation={currentDonation} />
 
         {/* Impact Metrics Grid */}
-        <ImpactMetricsGrid />
+        <ImpactMetricsGrid poolData={poolData} />
 
         {/* Real Impact Cards */}
         <RealImpactCards />

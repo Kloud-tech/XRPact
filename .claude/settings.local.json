@@ -1,20 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)",
-      "Bash(npm run dev:*)",
-      "Bash(timeout /t 3 /nobreak)",
-      "Bash(set PORT=3001)",
-      "Bash(cross-env PORT=3001 npm run dev:*)",
-      "Bash(npx ts-node:*)",
-      "Bash(node scripts/generate-testnet-wallet.js:*)",
-      "Bash(taskkill:*)",
-      "Bash(netstat:*)",
-      "Bash(findstr:*)",
-      "Bash(dir:*)",
       "Bash(cat:*)",
-      "Bash(echo:*)",
-      "Bash(unset:*)"
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)"
     ],
     "deny": [],
     "ask": []

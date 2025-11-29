@@ -27,6 +27,8 @@ import { RedistributionTimeline } from './components/dashboard/RedistributionTim
 import KYCVerification from './components/KYCVerification';
 import XamanWalletConnect from './components/XamanWalletConnect';
 import OnChainExplorer from './pages/OnChainExplorer';
+import { DonationForm } from './components/forms/DonationForm';
+import { ProjectForm } from './components/forms/ProjectForm';
 
 function App() {
   return (
@@ -71,6 +73,17 @@ function App() {
       {/* Pool Statistics Section */}
       <section id="pool-section" className="bg-gradient-to-br from-teal-950 via-emerald-900 to-green-950 py-12">
         <GreenPoolBalance />
+      </section>
+
+      {/* Donation and Project Forms Section */}
+      <section id="forms-section" className="bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 py-12 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <DonationForm />
+            <ProjectForm />
+          </div>
+        </div>
       </section>
 
       {/* World Map Section */}

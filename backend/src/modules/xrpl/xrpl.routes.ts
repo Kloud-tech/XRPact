@@ -76,6 +76,12 @@ router.post('/validate-ngo', controller.validateNGO);
  */
 router.get('/balance/:address', controller.getBalance);
 
+/**
+ * Get Recent Transactions
+ * GET /api/xrpl/transactions?limit=20
+ */
+router.get('/transactions', controller.getTransactions);
+
 // ==========================================================================
 // SBT (SOULBOUND TOKEN) ROUTES
 // ==========================================================================

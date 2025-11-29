@@ -11,6 +11,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Heart, Sparkles, ArrowRight } from 'lucide-react';
+import { WalletButton } from '../wallet/WalletButton';
+import { usePoolData } from '../../hooks/usePoolData';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -71,6 +73,8 @@ const FloatingParticle: React.FC<{ delay: number; size: string; color: string }>
 };
 
 export const EnhancedHero: React.FC = () => {
+  const { poolData } = usePoolData();
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Gradient Background - More Green! */}
@@ -95,6 +99,11 @@ export const EnhancedHero: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+        {/* Wallet Button - Top Right */}
+        <div className="absolute top-8 right-8">
+          <WalletButton />
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -197,21 +206,21 @@ export const EnhancedHero: React.FC = () => {
           <StatCard
             icon={<TrendingUp className="w-6 h-6" />}
             label="Pool Balance"
-            value="50,000 XRP"
-            trend="+12.4%"
+            value={`${(poolData?.totalBalance || 0).toLocaleString()} XRP`}
+            trend={poolData?.totalProfitsGenerated ? `+${poolData.totalProfitsGenerated.toFixed(1)} profit` : undefined}
             gradient="from-cyan-400 to-blue-500"
           />
           <StatCard
             icon={<Users className="w-6 h-6" />}
             label="Total Donors"
-            value="1,247"
-            trend="+142 this week"
+            value={(poolData?.donorCount || 0).toString()}
+            trend={poolData?.donorCount ? `${poolData.donorCount} active` : undefined}
             gradient="from-purple-400 to-pink-500"
           />
           <StatCard
             icon={<Heart className="w-6 h-6" />}
-            label="Families Helped"
-            value="3,892"
+            label="Total Donated"
+            value={`${(poolData?.totalDonations || 0).toLocaleString()} XRP`}
             gradient="from-pink-400 to-red-500"
           />
         </div>

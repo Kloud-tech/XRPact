@@ -517,6 +517,56 @@ export class XRPLController {
     }
   };
 
+  /**
+   * GET /api/xrpl/transactions
+   * Get recent transactions for the pool wallet
+   */
+  getTransactions = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const poolAddress = this.xrplClient.getPoolWalletAddress();
+
+      const transactions = await this.xrplClient.getRecentTransactions(poolAddress, limit);
+
+      // Map XRPL transaction types to frontend types
+      const mappedTransactions = transactions.map((tx: any) => {
+        let type: 'donation' | 'distribution' | 'yield' = 'donation';
+
+        // If transaction is TO pool wallet, it's a donation
+        if (tx.to === poolAddress) {
+          type = 'donation';
+        }
+        // If transaction is FROM pool wallet, it's a distribution
+        else if (tx.from === poolAddress) {
+          type = 'distribution';
+        }
+
+        return {
+          id: tx.hash,
+          from: tx.from,
+          to: tx.to,
+          amount: tx.amount,
+          type,
+          timestamp: tx.timestamp,
+          hash: tx.hash,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        address: poolAddress,
+        total: mappedTransactions.length,
+        transactions: mappedTransactions,
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Get transactions failed:', error);
+      res.status(500).json({
+        error: 'Failed to get transactions',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
   // ==========================================================================
   // HEALTH CHECK
   // ==========================================================================
