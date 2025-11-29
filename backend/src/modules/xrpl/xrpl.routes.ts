@@ -72,4 +72,52 @@ router.post('/validate-ngo', controller.validateNGO);
  */
 router.get('/balance/:address', controller.getBalance);
 
+// ==========================================================================
+// SBT (SOULBOUND TOKEN) ROUTES
+// ==========================================================================
+
+/**
+ * Mint SBT for a donor
+ * POST /api/xrpl/sbt/mint
+ * Body: { donorAddress, totalDonated, ngosSupported?, level? }
+ */
+router.post('/sbt/mint', controller.mintSBT);
+
+/**
+ * Read SBT metadata
+ * GET /api/xrpl/sbt/:nftTokenId
+ */
+router.get('/sbt/:nftTokenId', controller.readSBT);
+
+/**
+ * Update SBT metadata
+ * POST /api/xrpl/sbt/:nftTokenId/update
+ * Body: { totalDonated?, redistributionsCount?, ngosSupported?, level? }
+ */
+router.post('/sbt/:nftTokenId/update', controller.updateSBT);
+
+/**
+ * Record governance vote for SBT holder
+ * POST /api/xrpl/sbt/:nftTokenId/vote
+ */
+router.post('/sbt/:nftTokenId/vote', controller.recordSBTVote);
+
+/**
+ * Get all SBTs for a donor
+ * GET /api/xrpl/sbt/donor/:donorAddress
+ */
+router.get('/sbt/donor/:donorAddress', controller.getDonorSBTs);
+
+/**
+ * List all SBTs (admin)
+ * GET /api/xrpl/sbt/list/all
+ */
+router.get('/sbt/list/all', controller.listAllSBTs);
+
+/**
+ * Export SBT as JSON
+ * GET /api/xrpl/sbt/:nftTokenId/export
+ */
+router.get('/sbt/:nftTokenId/export', controller.exportSBT);
+
 export default router;

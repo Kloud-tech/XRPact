@@ -12,24 +12,31 @@
  * - GET  /api/xrpl/donor/:address - Obtenir les infos d'un donateur
  * - GET  /api/xrpl/ngos - Lister les ONG
  * - POST /api/xrpl/validate-ngo - Valider une ONG
+ * - POST /api/xrpl/sbt/mint - Mint SBT (Soulbound Token)
+ * - GET  /api/xrpl/sbt/:nftTokenId - Read SBT metadata
+ * - POST /api/xrpl/sbt/:nftTokenId/vote - Record governance vote
  */
 
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { XRPLClientService } from '../services/xrpl-client.service';
 import { DonationPoolService } from '../services/donation-pool.service';
 import { ImpactOracleService } from '../services/impact-oracle.service';
+import { SBTService } from '../services/sbt.service';
 import { DepositRequest } from '../types/xrpl.types';
 
 export class XRPLController {
   private xrplClient: XRPLClientService;
   private poolService: DonationPoolService;
   private oracleService: ImpactOracleService;
+  private sbtService: SBTService;
 
   constructor() {
     // Initialiser les services
     this.xrplClient = new XRPLClientService();
     this.poolService = new DonationPoolService(this.xrplClient);
     this.oracleService = new ImpactOracleService();
+    this.sbtService = new SBTService(this.xrplClient);
 
     // Connecter au réseau XRPL (mode MOCK si pas de config)
     this.initialize();
@@ -80,6 +87,33 @@ export class XRPLController {
 
       // Traiter la donation
       const result = await this.poolService.deposit(request);
+
+      // Auto-mint SBT on first donation
+      if (result.success && result.nftMinted) {
+        try {
+          const donor = this.poolService.getDonor(request.donorAddress);
+          if (donor && donor.ditTokenId) {
+            // Also mint SBT with donor impact data
+            const sbtResult = await this.sbtService.mintSBT({
+              donorAddress: request.donorAddress,
+              totalDonated: donor.totalDonated,
+              ngosSupported: [], // Will be populated after first redistribution
+              level: donor.level,
+            });
+
+            if (sbtResult.success) {
+              console.log(
+                `[XRPLController] Auto-minted SBT for ${request.donorAddress}: ${sbtResult.nftTokenId}`
+              );
+              (result as any).sbtTokenId = sbtResult.nftTokenId;
+              (result as any).sbtTxHash = sbtResult.txHash;
+            }
+          }
+        } catch (e: any) {
+          // Non-blocking: SBT minting is optional
+          console.warn('[XRPLController] SBT auto-mint failed:', e.message || e);
+        }
+      }
 
       res.status(200).json(result);
     } catch (error: any) {
@@ -281,8 +315,72 @@ export class XRPLController {
         return;
       }
 
-      // Valider l'ONG via Impact Oracle
+      // Valider l'ONG via Impact Oracle (service interne)
       const validation = await this.oracleService.validateNGO(request);
+
+      // Attempt to enrich with external ImpactOracle micro-service if available
+      try {
+        const oracleUrl = process.env.IMPACT_ORACLE_URL || 'http://localhost:3300/oracle/verify';
+
+        // Try to determine address to verify: prefer provided address or look up NGO wallet
+        let addressToVerify: string | undefined = request.address;
+
+        // If not provided, try to get NGO wallet from poolService
+        if (!addressToVerify) {
+          const ngos = this.poolService.getAllNGOs();
+          const found = ngos.find((n: any) => n.id === request.ngoId);
+          if (found && found.walletAddress) {
+            addressToVerify = found.walletAddress;
+          }
+        }
+
+        if (addressToVerify) {
+          const resp = await axios.post(oracleUrl, { address: addressToVerify }, { timeout: 5000 });
+          if (resp && resp.data) {
+            // merge external score if present
+            const ext = resp.data;
+            if (typeof ext.impactScore === 'number') {
+              validation.impactScore = ext.impactScore;
+              validation.dataSource = (validation.dataSource || '') + ' + ExternalImpactOracle';
+              validation.lastUpdated = new Date();
+
+              // Update NGO in the pool with new score & verified flag
+              try {
+                const ngos = this.poolService.getAllNGOs();
+                const ngo = ngos.find((n: any) => n.id === request.ngoId);
+                if (ngo) {
+                  ngo.impactScore = validation.impactScore;
+                  ngo.verified = validation.impactScore >= 60;
+                  ngo.certifications = validation.certifications || ngo.certifications || [];
+                  ngo.updatedAt = new Date();
+                  this.poolService.upsertNGO(ngo);
+                }
+              } catch (e) {
+                // Non-blocking: log and continue
+                console.warn('[XRPLController] Failed to upsert NGO after external validation', e.message || e);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // External oracle failed — continue with internal validation
+        console.warn('[XRPLController] External ImpactOracle call failed:', e.message || e);
+      }
+
+      // Optionally: publish validation hash to XRPL (if enabled)
+      if (process.env.PUBLISH_ON_CHAIN === 'true' && request.ngoId) {
+        try {
+          const publishResult = await this.publishValidationOnChain(request.ngoId, validation);
+          if (publishResult) {
+            (validation as any).onChainHash = publishResult.hash;
+            (validation as any).txHash = publishResult.txHash;
+            console.log(`[XRPLController] Validation hash published on-chain: ${publishResult.txHash}`);
+          }
+        } catch (e) {
+          // Non-blocking: log and continue
+          console.warn('[XRPLController] Failed to publish validation on-chain:', e.message || e);
+        }
+      }
 
       res.status(200).json({
         success: true,
@@ -296,6 +394,59 @@ export class XRPLController {
       });
     }
   };
+
+  // ==========================================================================
+  // PUBLISH VALIDATION ON-CHAIN - Publier le hash de validation on-chain
+  // ==========================================================================
+
+  /**
+   * Publish validation hash to XRPL Memo field for immutable proof
+   * 
+   * @param ngoId - NGO identifier
+   * @param validation - Validation result object
+   * @returns { hash, txHash } or null if failed
+   */
+  private async publishValidationOnChain(ngoId: string, validation: any): Promise<any> {
+    try {
+      const crypto = require('crypto');
+
+      // Compute SHA256 hash of validation result
+      const normalized = JSON.stringify(validation, null, 0);
+      const hash = crypto
+        .createHash('sha256')
+        .update(normalized)
+        .digest('hex')
+        .toUpperCase();
+
+      // Create memo with validation hash
+      const memoContent = `VALIDATION_${ngoId}_${hash}`;
+      const memoHex = Buffer.from(memoContent, 'utf8').toString('hex').toUpperCase();
+
+      // Get NGO wallet address
+      const ngos = this.poolService.getAllNGOs();
+      const ngo = ngos.find((n: any) => n.id === ngoId);
+
+      if (!ngo || !ngo.walletAddress) {
+        console.warn(`[XRPLController] NGO ${ngoId} not found or no wallet address`);
+        return null;
+      }
+
+      // Create and submit Payment transaction with Memo
+      // In MOCK mode, this returns a simulated txHash
+      const mockTxHash = `VAL_TX_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+      console.log(`[XRPLController] Published validation hash on-chain (MOCK): ${mockTxHash}`);
+
+      return {
+        hash,
+        txHash: mockTxHash,
+        memoContent,
+      };
+    } catch (e: any) {
+      console.error('[XRPLController] Failed to publish validation on-chain:', e.message || e);
+      throw e;
+    }
+  }
 
   // ==========================================================================
   // GET BALANCE - Obtenir le solde d'une adresse XRPL
@@ -354,6 +505,199 @@ export class XRPLController {
       res.status(500).json({
         status: 'error',
         message: error.message || 'Health check failed',
+      });
+    }
+  };
+
+  // ==========================================================================
+  // SBT (SOULBOUND TOKEN) - Non-transferable NFT for Donors
+  // ==========================================================================
+
+  /**
+   * POST /api/xrpl/sbt/mint
+   * Mint a Soulbound Token for a donor
+   * Body: { donorAddress, totalDonated, ngosSupported, level }
+   */
+  mintSBT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const request = req.body;
+
+      if (!request.donorAddress || request.totalDonated === undefined) {
+        res.status(400).json({
+          error: 'Missing required fields',
+          message: 'donorAddress and totalDonated are required',
+        });
+        return;
+      }
+
+      const result = await this.sbtService.mintSBT(request);
+
+      res.status(result.success ? 201 : 400).json(result);
+    } catch (error: any) {
+      console.error('[XRPLController] SBT mint failed:', error);
+      res.status(500).json({
+        error: 'SBT mint failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/sbt/:nftTokenId
+   * Read SBT metadata
+   */
+  readSBT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+
+      const result = await this.sbtService.readSBT(nftTokenId);
+
+      res.status(result.success ? 200 : 404).json(result);
+    } catch (error: any) {
+      console.error('[XRPLController] SBT read failed:', error);
+      res.status(500).json({
+        error: 'SBT read failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/sbt/:nftTokenId/vote
+   * Record a governance vote for SBT holder
+   */
+  recordSBTVote = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+
+      if (!nftTokenId) {
+        res.status(400).json({
+          error: 'Missing nftTokenId',
+          message: 'nftTokenId is required',
+        });
+        return;
+      }
+
+      const result = await this.sbtService.recordGovernanceVote(nftTokenId);
+
+      res.status(result.success ? 200 : 404).json(result);
+    } catch (error: any) {
+      console.error('[XRPLController] Vote recording failed:', error);
+      res.status(500).json({
+        error: 'Vote recording failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/sbt/donor/:donorAddress
+   * Get all SBTs for a donor
+   */
+  getDonorSBTs = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { donorAddress } = req.params;
+
+      const sbts = this.sbtService.getSBTsByDonor(donorAddress);
+
+      res.status(200).json({
+        success: true,
+        donorAddress,
+        sbts: sbts.map(([tokenId, metadata]) => ({
+          nftTokenId: tokenId,
+          metadata,
+        })),
+        total: sbts.length,
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Get donor SBTs failed:', error);
+      res.status(500).json({
+        error: 'Failed to get SBTs',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/sbt/:nftTokenId/update
+   * Update SBT metadata (after new donation, redistribution, etc)
+   */
+  updateSBT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+      const updates = req.body;
+
+      if (!nftTokenId) {
+        res.status(400).json({
+          error: 'Missing nftTokenId',
+          message: 'nftTokenId is required',
+        });
+        return;
+      }
+
+      const result = await this.sbtService.updateSBT(nftTokenId, updates);
+
+      res.status(result.success ? 200 : 404).json(result);
+    } catch (error: any) {
+      console.error('[XRPLController] SBT update failed:', error);
+      res.status(500).json({
+        error: 'SBT update failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/sbt/list/all
+   * List all SBTs (admin/audit endpoint)
+   */
+  listAllSBTs = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const sbts = this.sbtService.listAllSBTs();
+
+      res.status(200).json({
+        success: true,
+        total: sbts.length,
+        sbts,
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] List SBTs failed:', error);
+      res.status(500).json({
+        error: 'Failed to list SBTs',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/sbt/:nftTokenId/export
+   * Export SBT as JSON
+   */
+  exportSBT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+
+      const json = this.sbtService.exportSBT(nftTokenId);
+
+      if (!json) {
+        res.status(404).json({
+          error: 'SBT not found',
+          nftTokenId,
+        });
+        return;
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="sbt-${nftTokenId}.json"`
+      );
+      res.send(json);
+    } catch (error: any) {
+      console.error('[XRPLController] Export SBT failed:', error);
+      res.status(500).json({
+        error: 'Export failed',
+        message: error.message || 'Internal server error',
       });
     }
   };

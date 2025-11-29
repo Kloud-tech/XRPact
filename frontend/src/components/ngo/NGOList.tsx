@@ -47,6 +47,8 @@ interface NGOCardProps {
 const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
   const Icon = CATEGORY_ICONS[ngo.category as keyof typeof CATEGORY_ICONS] || Globe;
   const categoryColor = CATEGORY_COLORS[ngo.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.other;
+  const { fetchNgos } = useStore();
+  const [validating, setValidating] = React.useState(false);
 
   // Score color based on impact score
   const getScoreColor = (score: number) => {
@@ -96,6 +98,56 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
           <div className="text-2xl font-bold">{ngo.impactScore}</div>
           <div className="text-xs font-medium">Score</div>
         </div>
+      </div>
+
+      {/* Actions: Validate */}
+      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+        <button
+          onClick={async () => {
+            try {
+              setValidating(true);
+              console.log(`[NGOList] Validating NGO: ${ngo.id}`);
+              
+              const response = await fetch(`http://localhost:3000/api/xrpl/validate-ngo`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ngoId: ngo.id }),
+              });
+
+              if (!response.ok) {
+                console.error(`[NGOList] Validation failed: ${response.status} ${response.statusText}`);
+                alert(`Validation failed: ${response.statusText}`);
+                return;
+              }
+
+              const data = await response.json();
+              console.log(`[NGOList] Validation result:`, data);
+              
+              if (data.success) {
+                alert(`✅ NGO "${ngo.name}" validated!\nScore: ${data.validation.impactScore}/100`);
+                // Refresh the NGO list
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchNgos();
+              } else {
+                alert(`❌ Validation failed: ${data.error}`);
+              }
+            } catch (err: any) {
+              console.error('[NGOList] Validation error:', err);
+              alert(`Error: ${err.message || 'Unknown error'}`);
+            } finally {
+              setValidating(false);
+            }
+          }}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
+            ngo.verified 
+              ? 'bg-green-50 text-green-700 border-green-200 cursor-default' 
+              : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+          }`}
+          disabled={validating || ngo.verified}
+          title={ngo.verified ? 'Already validated' : 'Click to validate this NGO'}
+        >
+          {validating ? '⏳ Validating...' : ngo.verified ? '✓ Validated' : '🔍 Validate'}
+        </button>
       </div>
 
       {/* Description */}

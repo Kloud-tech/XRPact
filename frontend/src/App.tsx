@@ -14,6 +14,7 @@ import { GovernanceVoting } from './components/governance/GovernanceVoting';
 import { ClimateImpactMode } from './components/climate/ClimateImpactMode';
 import { EmergencyAlert } from './features/emergency/components';
 import { QRCodeDemo } from './components/qr/QRCodeDemo';
+import { SBTDisplay } from './components/SBTDisplay';
 import OnChainExplorer from './pages/OnChainExplorer';
 
 function App() {
@@ -31,6 +32,14 @@ function App() {
       {/* Pool Statistics Section */}
       <section id="pool-section" className="bg-white">
         <PoolBalance />
+      </section>
+
+      {/* SBT (Soulbound Token) Section */}
+      <section id="sbt-section" className="bg-gradient-to-br from-purple-50 to-blue-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Your Impact NFT</h2>
+          <SBTDisplay />
+        </div>
       </section>
 
       {/* NGO Directory Section */}
