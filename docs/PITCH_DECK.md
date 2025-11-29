@@ -33,71 +33,82 @@
 
 ## Slide 2: Solution
 
-### XRPL Impact Fund: The Regenerative Donation Engine
+### XRPL Impact Map: The Google Maps of Humanitarian Aid 🗺️
 
-**What if every donation could generate income forever?**
+**What if you could see EXACTLY where every dollar goes, in real-time, on a map?**
 
-We transform one-time donations into a **perpetual engine for good**.
+We built the world's first **transparent, perpetual, and verifiable** humanitarian platform.
 
 ### How It Works
 
 ```
-💰 Donation → 🏦 Collective Pool → 🤖 AI Trading → 📈 Profits → 🌱 NGOs Forever
+💰 Donation → 🏦 AMM Pool (XRPL DEX) → 📈 Perpetual Yield → 🔒 Smart Escrow →
+👥 Human Oracle Validation → ✅ Funds Released → 🎨 Geographic NFT Proof
 ```
 
-1. **Donors contribute to a collective fund** on XRPL
-2. **AI algorithm** manages capital conservatively (MA/RSI strategy)
-3. **Profits are automatically redistributed** to verified NGOs
-4. **Impact is tracked on-chain** with full transparency
-5. **Donors earn NFTs** that evolve with their contribution
+1. **Donors fund an AMM pool** on XRPL DEX (generates 8-12% APY passively)
+2. **Profits are locked in Smart Escrow** (XLS-100) per project with conditions
+3. **XRPL Commons ambassadors** validate completion on the ground (photo + GPS)
+4. **Escrow auto-releases** when 3/5 validators approve OR clawback if deadline passed
+5. **Donors receive Geographic NFT** - a permanent map tile of the place they helped
 
 ### The Magic
-✅ **Your donation keeps giving** - not just once, but perpetually
-✅ **100% transparent** - every transaction on XRPL
-✅ **Gamified experience** - earn evolving Impact NFTs
-✅ **Climate positive** - dedicated Climate Impact Mode
-✅ **You decide** - governance via Donor Impact Tokens
+✅ **See it on the map** - Every project is a pin (Yellow=Pending, Green=Funded, Red=Alert)
+✅ **100% on-chain XRPL** - Zero CEX, zero Web2 databases for validation
+✅ **Perpetual funding** - Your donation generates income forever via XRPL AMM
+✅ **Human Oracle network** - Real people verify, not expensive IoT sensors
+✅ **Geographic NFT proof** - You own the exact lat/long you helped (shareable!)
 
 ---
 
 ## Slide 3: Product Features
 
-### 💎 1. Donor Impact Tokens (DIT)
-**Soulbound governance tokens**
-- Unlock voting rights on NGO selection
-- Badge system: Bronze → Diamond
-- Cannot be sold/transferred (true impact, not speculation)
+### 🗺️ 1. Interactive Impact Map (The Core Innovation)
+**Every project is a pin on the world map**
+- 📍 **Yellow pins** = Pending validation (funds locked in escrow)
+- 📍 **Green pins** = Completed & funded (validators approved)
+- 📍 **Red pins** = Alert (deadline passed, clawback available)
+- Click any pin → See photos, validators, GPS proof, XRPL tx hash
+- Filter by category, country, amount, status
 
-### 🎨 2. Evolving Impact NFTs
-**Your charitable avatar**
-- Visual representation of your impact
-- Evolves with donations, votes, and time
-- Shareable on social media
-- Gamified XP system
+### 🔒 2. Smart Escrow (XLS-100)
+**Conditional fund release**
+- Funds locked until validators approve
+- Requirements: Photo evidence + GPS + Multi-sig (3/5 oracles)
+- Deadline enforcement (90 days typical)
+- **Automatic clawback** if conditions not met → donors get funds back
+- 100% transparent on XRPL
 
-### 🌱 3. Climate Impact Mode
-**Dedicated environmental funding**
-- Auto-allocate % of profits to climate projects
-- Track CO₂ offset in real-time
-- Partner with certified reforestation NGOs
-- Supports UN SDG #13 (Climate Action)
+### 👥 3. Human Oracle Network (XRPL Commons Integration)
+**Real people, not sensors**
+- Tap into existing XRPL Commons ambassadors worldwide
+- Validators earn 50 XRP per validation
+- Reputation system (0-100 score)
+- Suspended if reputation < 30
+- Geo-matched to projects (max 100km distance)
 
-### 🔍 4. Impact Oracle
-**AI-powered NGO verification**
-- Validates NGO legitimacy via UN/OECD data
-- Calculates Impact Scores (0-100)
-- Scans for fraud/red flags
-- Updates every 24 hours
+### 🎨 4. Geographic NFTs
+**Proof of impact as a map tile**
+- Each NFT = exact lat/long you helped
+- Metadata includes: Photos, validators, GPS, impact metrics
+- Shareable on social ("I funded this exact spot on Earth!")
+- Collectible gallery of all places you've helped
 
-### 📊 5. Transparency Dashboard
-**See your impact live**
-- Real-time pool balance
-- AI trading performance
-- NGO distributions
-- Geographic impact map
-- Donation Stories with QR codes
+### 💰 5. AMM Perpetual Funding
+**100% on-chain yield generation**
+- Pool provides liquidity on XRPL DEX (XRP/rUSD, XRP/rEUR)
+- Earn 0.3% trading fees passively
+- NO reliance on CEX (Binance, Kraken)
+- 8-12% APY conservative estimate
+- Monthly profit distribution to escrows
 
-### 📖 6. Donation Stories
+### 📊 6. Transparency Dashboard
+**Professional analytics (Highcharts + AG-Grid)**
+- Pool performance charts
+- Escrow status breakdown
+- Validator leaderboard
+- Transaction history (exportable CSV)
+- Geographic heatmap of impact
 **Every redistribution tells a story**
 - NGO funded
 - Amount sent

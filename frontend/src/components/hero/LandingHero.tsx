@@ -11,12 +11,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Leaf, Sparkles } from 'lucide-react';
+import { TrendingUp, Users, Leaf, Sparkles, Map } from 'lucide-react';
 import { useStore } from '../../store';
+import { useNavigate } from 'react-router-dom';
 
 export const LandingHero: React.FC = () => {
   const { pool, fetchPool, setShowDonationModal, climateMode } = useStore();
   const [mounted, setMounted] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setMounted(true);
@@ -143,6 +145,14 @@ export const LandingHero: React.FC = () => {
             transition={{ delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
+            <button
+              onClick={() => navigate('/impact-map')}
+              className="group relative px-8 py-4 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-full font-bold text-lg shadow-2xl hover:shadow-green-500/50 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
+              <Map className="w-5 h-5" />
+              <span className="relative z-10">🗺️ Explore Impact Map</span>
+            </button>
+
             <button
               onClick={() => setShowDonationModal(true)}
               className="group relative px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg shadow-2xl hover:shadow-green-500/50 transition-all duration-300 hover:scale-105"
