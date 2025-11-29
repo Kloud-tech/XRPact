@@ -1,0 +1,17 @@
+# Environnements virtuels
+.venv/
+venv/
+
+# Fichiers Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+
+# Outils divers
+.env
+.idea/
+.vscode/
