@@ -82,14 +82,10 @@ const getNextTier = (xp: number) => {
 };
 
 export const NFTGallery: React.FC = () => {
-  const { donor, fetchDonor } = useStore();
+  const { donor } = useStore();
 
-  useEffect(() => {
-    // Fetch donor data - in real app, this would use actual wallet address
-    if (!donor) {
-      fetchDonor('rDonor123'); // Mock address
-    }
-  }, [donor, fetchDonor]);
+  // Note: donor is initialized on first donation, no need to fetch on mount
+  // useEffect removed - NFTGallery works with mock data if no donor exists
 
   const xp = donor?.xp || 0;
   const level = donor?.level || 1;

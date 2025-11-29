@@ -15,6 +15,11 @@ import { ClimateImpactMode } from './components/climate/ClimateImpactMode';
 import { EmergencyAlert } from './features/emergency/components';
 import { QRCodeDemo } from './components/qr/QRCodeDemo';
 import { SBTDisplay } from './components/SBTDisplay';
+import { ImpactNFTDisplay } from './components/ImpactNFTDisplay';
+import { DemoFlow } from './components/DemoFlow';
+import { WorldMap } from './components/impact-map/WorldMap';
+import { RedistributionTimeline } from './components/dashboard/RedistributionTimeline';
+import KYCVerification from './components/KYCVerification';
 import OnChainExplorer from './pages/OnChainExplorer';
 
 function App() {
@@ -34,12 +39,38 @@ function App() {
         <PoolBalance />
       </section>
 
+      {/* World Map Section */}
+      <section id="world-map-section" className="bg-gradient-to-br from-blue-50 to-cyan-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <WorldMap />
+        </div>
+      </section>
+
+      {/* Redistribution Timeline Section */}
+      <section id="timeline-section" className="bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <RedistributionTimeline />
+        </div>
+      </section>
+
+      {/* KYC Verification Section */}
+      <section id="kyc-section" className="bg-gradient-to-br from-blue-50 to-indigo-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <KYCVerification />
+        </div>
+      </section>
+
       {/* SBT (Soulbound Token) Section */}
       <section id="sbt-section" className="bg-gradient-to-br from-purple-50 to-blue-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Your Impact NFT</h2>
           <SBTDisplay />
         </div>
+      </section>
+
+      {/* Demo Flow Section */}
+      <section id="demo-section" className="bg-white py-12">
+        <DemoFlow />
       </section>
 
       {/* NGO Directory Section */}
@@ -50,6 +81,11 @@ function App() {
       {/* NFT Gallery Section */}
       <section id="nft-section" className="bg-white">
         <NFTGallery />
+      </section>
+
+      {/* Impact NFT Section */}
+      <section id="impact-nft-section" className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-12">
+        <ImpactNFTDisplay autoRefresh={false} />
       </section>
 
       {/* Governance Section */}
@@ -92,6 +128,21 @@ function App() {
                 <li>
                   <a href="#pool-section" className="hover:text-white transition-colors">
                     Pool Statistics
+                  </a>
+                </li>
+                <li>
+                  <a href="#world-map-section" className="hover:text-white transition-colors">
+                    Global Impact Map
+                  </a>
+                </li>
+                <li>
+                  <a href="#timeline-section" className="hover:text-white transition-colors">
+                    Distribution Timeline
+                  </a>
+                </li>
+                <li>
+                  <a href="#kyc-section" className="hover:text-white transition-colors">
+                    KYC Verification
                   </a>
                 </li>
                 <li>

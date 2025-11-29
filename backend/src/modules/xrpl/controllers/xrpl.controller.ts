@@ -23,6 +23,7 @@ import { XRPLClientService } from '../services/xrpl-client.service';
 import { DonationPoolService } from '../services/donation-pool.service';
 import { ImpactOracleService } from '../services/impact-oracle.service';
 import { SBTService } from '../services/sbt.service';
+import { ImpactNFTService } from '../services/impact-nft.service';
 import { DepositRequest } from '../types/xrpl.types';
 
 export class XRPLController {
@@ -30,6 +31,7 @@ export class XRPLController {
   private poolService: DonationPoolService;
   private oracleService: ImpactOracleService;
   private sbtService: SBTService;
+  private impactNFTService: ImpactNFTService;
 
   constructor() {
     // Initialiser les services
@@ -37,6 +39,7 @@ export class XRPLController {
     this.poolService = new DonationPoolService(this.xrplClient);
     this.oracleService = new ImpactOracleService();
     this.sbtService = new SBTService(this.xrplClient);
+    this.impactNFTService = new ImpactNFTService(this.xrplClient);
 
     // Connecter au réseau XRPL (mode MOCK si pas de config)
     this.initialize();
@@ -185,6 +188,40 @@ export class XRPLController {
 
       // Distribuer les profits
       const result = await this.poolService.distributeProfits(profitAmount);
+
+      // Auto-mint Impact NFT after redistribution (non-blocking)
+      if (result.success && result.distributions && result.distributions.length > 0) {
+        try {
+          const projectIds = result.distributions.map((d: any) => d.ngoId);
+          const poolAddress = result.poolAddress || 'rXRPLImpactPool';
+
+          console.log('[XRPLController] Auto-minting Impact NFT after redistribution');
+
+          const nftResult = await this.impactNFTService.mintImpactNFT({
+            poolAddress,
+            redistributionAmount: profitAmount,
+            projectIds,
+            redistributionCount: result.redistributionCount || 1,
+          });
+
+          if (nftResult.success) {
+            result.impactNFT = {
+              nftTokenId: nftResult.nftTokenId,
+              tier: nftResult.metadata?.tier,
+              impactScore: nftResult.metadata?.impactScore,
+            };
+            console.log(
+              `[XRPLController] Impact NFT minted: ${nftResult.nftTokenId}`
+            );
+          }
+        } catch (nftError: any) {
+          console.warn(
+            '[XRPLController] Impact NFT mint failed (non-blocking):',
+            nftError.message
+          );
+          // Don't break the redistribution flow
+        }
+      }
 
       res.status(200).json(result);
     } catch (error: any) {
@@ -695,6 +732,160 @@ export class XRPLController {
       res.send(json);
     } catch (error: any) {
       console.error('[XRPLController] Export SBT failed:', error);
+      res.status(500).json({
+        error: 'Export failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/impact-nft/mint
+   * Mint an Impact NFT after redistribution
+   */
+  mintImpactNFT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { poolAddress, redistributionAmount, projectIds, redistributionCount } = req.body;
+
+      if (!poolAddress || !projectIds || projectIds.length === 0) {
+        res.status(400).json({
+          error: 'Missing required fields',
+          required: ['poolAddress', 'projectIds (array)'],
+        });
+        return;
+      }
+
+      const result = await this.impactNFTService.mintImpactNFT({
+        poolAddress,
+        redistributionAmount: redistributionAmount || 0,
+        projectIds,
+        redistributionCount: redistributionCount || 1,
+      });
+
+      if (result.success) {
+        res.status(201).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error: any) {
+      console.error('[XRPLController] Mint Impact NFT failed:', error);
+      res.status(500).json({
+        error: 'Mint failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/impact-nft/:nftTokenId
+   * Read Impact NFT metadata
+   */
+  readImpactNFT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+
+      const result = await this.impactNFTService.readImpactNFT(nftTokenId);
+
+      if (result.success) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json(result);
+      }
+    } catch (error: any) {
+      console.error('[XRPLController] Read Impact NFT failed:', error);
+      res.status(500).json({
+        error: 'Read failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/impact-nft/:nftTokenId/update
+   * Update Impact NFT after new redistribution
+   */
+  updateImpactNFT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+      const { redistributionAmount, projectIds, redistributionCount } = req.body;
+
+      if (!redistributionAmount || !projectIds) {
+        res.status(400).json({
+          error: 'Missing required fields',
+          required: ['redistributionAmount', 'projectIds'],
+        });
+        return;
+      }
+
+      const result = await this.impactNFTService.updateImpactNFT({
+        nftTokenId,
+        redistributionAmount,
+        projectIds,
+        redistributionCount: redistributionCount || 1,
+      });
+
+      if (result.success) {
+        res.status(200).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error: any) {
+      console.error('[XRPLController] Update Impact NFT failed:', error);
+      res.status(500).json({
+        error: 'Update failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/impact-nft/list/all
+   * List all Impact NFTs (admin endpoint)
+   */
+  listAllImpactNFTs = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const nfts = this.impactNFTService.listAllImpactNFTs();
+
+      res.status(200).json({
+        success: true,
+        total: nfts.length,
+        nfts,
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] List Impact NFTs failed:', error);
+      res.status(500).json({
+        error: 'List failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/impact-nft/:nftTokenId/export
+   * Export Impact NFT as JSON
+   */
+  exportImpactNFT = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { nftTokenId } = req.params;
+
+      const json = this.impactNFTService.exportAsJSON(nftTokenId);
+
+      if (!json || json.includes('error')) {
+        res.status(404).json({
+          error: 'Impact NFT not found',
+          nftTokenId,
+        });
+        return;
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="impact-nft-${nftTokenId}.json"`
+      );
+      res.send(json);
+    } catch (error: any) {
+      console.error('[XRPLController] Export Impact NFT failed:', error);
       res.status(500).json({
         error: 'Export failed',
         message: error.message || 'Internal server error',

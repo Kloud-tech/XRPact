@@ -6,9 +6,11 @@
 
 import { Router } from 'express';
 import { XRPLController } from './controllers/xrpl.controller';
+import KYCController from './controllers/kyc.controller';
 
 const router = Router();
 const controller = new XRPLController();
+const kycController = new KYCController();
 
 // ==========================================================================
 // XRPL ROUTES
@@ -119,5 +121,82 @@ router.get('/sbt/list/all', controller.listAllSBTs);
  * GET /api/xrpl/sbt/:nftTokenId/export
  */
 router.get('/sbt/:nftTokenId/export', controller.exportSBT);
+
+// ==========================================================================
+// IMPACT NFT ROUTES
+// ==========================================================================
+
+/**
+ * Mint Impact NFT after redistribution
+ * POST /api/xrpl/impact-nft/mint
+ * Body: { poolAddress: string, redistributionAmount: number, projectIds: string[], redistributionCount?: number }
+ */
+router.post('/impact-nft/mint', controller.mintImpactNFT);
+
+/**
+ * Read Impact NFT metadata
+ * GET /api/xrpl/impact-nft/:nftTokenId
+ */
+router.get('/impact-nft/:nftTokenId', controller.readImpactNFT);
+
+/**
+ * Update Impact NFT after new redistribution
+ * POST /api/xrpl/impact-nft/:nftTokenId/update
+ * Body: { redistributionAmount: number, projectIds: string[], redistributionCount?: number }
+ */
+router.post('/impact-nft/:nftTokenId/update', controller.updateImpactNFT);
+
+/**
+ * List all Impact NFTs (admin)
+ * GET /api/xrpl/impact-nft/list/all
+ */
+router.get('/impact-nft/list/all', controller.listAllImpactNFTs);
+
+/**
+ * Export Impact NFT as JSON
+ * GET /api/xrpl/impact-nft/:nftTokenId/export
+ */
+router.get('/impact-nft/:nftTokenId/export', controller.exportImpactNFT);
+
+// ==========================================================================
+// KYC ROUTES
+// ==========================================================================
+
+/**
+ * Submit KYC Verification
+ * POST /api/kyc/submit
+ * Body: { entityType, address, fullName, email, countryCode, documentType, documentNumber }
+ */
+router.post('/kyc/submit', kycController.submitKYC);
+
+/**
+ * Get KYC Status
+ * GET /api/kyc/:kycId
+ */
+router.get('/kyc/:kycId', kycController.getKYCStatus);
+
+/**
+ * Check KYC Verification
+ * GET /api/kyc/check/:address
+ */
+router.get('/kyc/check/:address', kycController.checkKYCVerification);
+
+/**
+ * Update KYC Status (Admin)
+ * POST /api/kyc/:kycId/update-status
+ */
+router.post('/kyc/:kycId/update-status', kycController.updateKYCStatus);
+
+/**
+ * List All KYC Records (Admin)
+ * GET /api/kyc/list/all
+ */
+router.get('/kyc/list/all', kycController.listAllKYC);
+
+/**
+ * Export KYC Data
+ * GET /api/kyc/:kycId/export
+ */
+router.get('/kyc/:kycId/export', kycController.exportKYC);
 
 export default router;
