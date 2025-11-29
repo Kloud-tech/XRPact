@@ -1,13 +1,13 @@
+// IMPORTANT: Load environment variables FIRST
+import './config/env';
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { createServer } from 'http';
+import { createServer} from 'http';
 import xrplRoutes from './modules/xrpl/xrpl.routes';
 import emergencyRoutes from './api/routes/emergency.routes';
 import { errorHandler, notFoundHandler } from './api/middlewares/error-handler.middleware';
 import { SocketService } from './infrastructure/websocket/socket.service';
-
-dotenv.config();
 
 const app = express();
 const server = createServer(app);

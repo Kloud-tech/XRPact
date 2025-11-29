@@ -269,4 +269,40 @@ router.get('/xaman/multisig/:multisigId/export', xamanController.exportMultisigD
  */
 router.post('/xaman/webhook', xamanController.handleCallback);
 
+// ==========================================================================
+// PROJECTS ROUTES
+// ==========================================================================
+
+/**
+ * Get all projects
+ * GET /api/xrpl/projects
+ */
+router.get('/projects', controller.getProjects);
+
+/**
+ * Get projects statistics
+ * GET /api/xrpl/projects/stats
+ */
+router.get('/projects/stats', controller.getProjectsStats);
+
+/**
+ * Get project by ID
+ * GET /api/xrpl/projects/:id
+ */
+router.get('/projects/:id', controller.getProject);
+
+/**
+ * Create a new project
+ * POST /api/xrpl/projects
+ * Body: { title, category, location, amount, conditions }
+ */
+router.post('/projects', controller.createProject);
+
+/**
+ * Add validation proof to project
+ * POST /api/xrpl/projects/:id/validate
+ * Body: { validatorName, photoUrl, reputation }
+ */
+router.post('/projects/:id/validate', controller.addProjectValidation);
+
 export default router;

@@ -24,6 +24,7 @@ import { DonationPoolService } from '../services/donation-pool.service';
 import { ImpactOracleService } from '../services/impact-oracle.service';
 import { SBTService } from '../services/sbt.service';
 import { ImpactNFTService } from '../services/impact-nft.service';
+import { ProjectsService } from '../services/projects.service';
 import { DepositRequest } from '../types/xrpl.types';
 
 export class XRPLController {
@@ -32,6 +33,7 @@ export class XRPLController {
   private oracleService: ImpactOracleService;
   private sbtService: SBTService;
   private impactNFTService: ImpactNFTService;
+  private projectsService: ProjectsService;
 
   constructor() {
     // Initialiser les services
@@ -40,6 +42,7 @@ export class XRPLController {
     this.oracleService = new ImpactOracleService();
     this.sbtService = new SBTService(this.xrplClient);
     this.impactNFTService = new ImpactNFTService(this.xrplClient);
+    this.projectsService = new ProjectsService(this.xrplClient);
 
     // Connecter au réseau XRPL (mode MOCK si pas de config)
     this.initialize();
@@ -888,6 +891,157 @@ export class XRPLController {
       console.error('[XRPLController] Export Impact NFT failed:', error);
       res.status(500).json({
         error: 'Export failed',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  // ==========================================================================
+  // PROJECTS - Humanitarian Projects with XRPL Escrows
+  // ==========================================================================
+
+  /**
+   * GET /api/xrpl/projects
+   * Get all humanitarian projects
+   */
+  getProjects = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const projects = this.projectsService.getAllProjects();
+
+      res.status(200).json({
+        success: true,
+        total: projects.length,
+        projects
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Get projects failed:', error);
+      res.status(500).json({
+        error: 'Failed to get projects',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/projects/:id
+   * Get project by ID
+   */
+  getProject = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const project = this.projectsService.getProject(id);
+
+      if (!project) {
+        res.status(404).json({
+          error: 'Project not found',
+          message: `No project found with ID ${id}`,
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        project
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Get project failed:', error);
+      res.status(500).json({
+        error: 'Failed to get project',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * GET /api/xrpl/projects/stats
+   * Get projects statistics
+   */
+  getProjectsStats = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const stats = this.projectsService.getStats();
+
+      res.status(200).json({
+        success: true,
+        stats
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Get stats failed:', error);
+      res.status(500).json({
+        error: 'Failed to get stats',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/projects
+   * Create a new project with XRPL escrow
+   * Body: { title, category, location, amount, conditions }
+   */
+  createProject = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const projectData = req.body;
+
+      // Validation
+      if (!projectData.title || !projectData.category || !projectData.location || !projectData.amount) {
+        res.status(400).json({
+          error: 'Missing required fields',
+          required: ['title', 'category', 'location', 'amount'],
+        });
+        return;
+      }
+
+      const project = await this.projectsService.createProject(projectData);
+
+      res.status(201).json({
+        success: true,
+        project
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Create project failed:', error);
+      res.status(500).json({
+        error: 'Failed to create project',
+        message: error.message || 'Internal server error',
+      });
+    }
+  };
+
+  /**
+   * POST /api/xrpl/projects/:id/validate
+   * Add validation proof to a project
+   * Body: { validatorName, photoUrl, reputation }
+   */
+  addProjectValidation = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const proof = req.body;
+
+      if (!proof.validatorName || !proof.photoUrl) {
+        res.status(400).json({
+          error: 'Missing required fields',
+          required: ['validatorName', 'photoUrl'],
+        });
+        return;
+      }
+
+      const project = this.projectsService.addValidationProof(id, proof);
+
+      if (!project) {
+        res.status(404).json({
+          error: 'Project not found',
+          message: `No project found with ID ${id}`,
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        project
+      });
+    } catch (error: any) {
+      console.error('[XRPLController] Add validation failed:', error);
+      res.status(500).json({
+        error: 'Failed to add validation',
         message: error.message || 'Internal server error',
       });
     }

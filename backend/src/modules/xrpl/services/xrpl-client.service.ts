@@ -21,6 +21,13 @@ export class XRPLClientService {
 
   constructor() {
     // Configuration depuis les variables d'environnement
+    console.log('[XRPLClient] Environment check:', {
+      XRPL_NETWORK: process.env.XRPL_NETWORK,
+      XRPL_WEBSOCKET_URL: process.env.XRPL_WEBSOCKET_URL,
+      hasWalletSeed: !!process.env.XRPL_POOL_WALLET_SEED,
+      hasWalletAddress: !!process.env.XRPL_POOL_WALLET_ADDRESS
+    });
+
     this.config = {
       network: (process.env.XRPL_NETWORK as any) || 'mock',
       websocketUrl: process.env.XRPL_WEBSOCKET_URL || 'wss://s.altnet.rippletest.net:51233',
@@ -278,6 +285,202 @@ export class XRPLClientService {
    */
   isMockMode(): boolean {
     return this.mockMode;
+  }
+
+  /**
+   * Create an escrow for a project
+   * Funds are locked until conditions are met
+   */
+  async createEscrow(
+    destination: string,
+    amount: number,
+    finishAfter: Date,
+    condition?: string
+  ): Promise<{ hash: string; sequence: number }> {
+    if (this.mockMode) {
+      // Mock: simulate escrow creation
+      await this.delay(500);
+      const mockEscrow = {
+        hash: `ESCROW_MOCK_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        sequence: Math.floor(Math.random() * 1000000)
+      };
+      console.log(`[XRPLClient] MOCK: Escrow created: ${mockEscrow.hash}`);
+      return mockEscrow;
+    }
+
+    try {
+      if (!this.client) {
+        throw new Error('XRPL client not connected');
+      }
+
+      if (!this.poolWallet) {
+        throw new Error('Pool wallet not initialized');
+      }
+
+      // Prepare escrow creation transaction
+      const escrowCreate = {
+        TransactionType: 'EscrowCreate',
+        Account: this.poolWallet.address,
+        Destination: destination,
+        Amount: xrpToDrops(amount),
+        FinishAfter: this.dateToRippleTime(finishAfter),
+      };
+
+      // Add condition if provided
+      if (condition) {
+        (escrowCreate as any).Condition = condition;
+      }
+
+      // Submit and wait for validation
+      const result = await this.client.submitAndWait(escrowCreate, { wallet: this.poolWallet });
+
+      const escrowData = {
+        hash: result.result.hash,
+        sequence: (result.result as any).Sequence || 0
+      };
+
+      console.log(`[XRPLClient] Escrow created: ${escrowData.hash} (Seq: ${escrowData.sequence})`);
+      return escrowData;
+    } catch (error) {
+      console.error('[XRPLClient] Escrow creation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Finish an escrow (release funds)
+   */
+  async finishEscrow(
+    owner: string,
+    escrowSequence: number,
+    fulfillment?: string
+  ): Promise<XRPLTransaction> {
+    if (this.mockMode) {
+      // Mock: simulate escrow finish
+      await this.delay(500);
+      const mockTx: XRPLTransaction = {
+        type: 'EscrowFinish',
+        from: this.config.poolWalletAddress,
+        to: owner,
+        amount: 0, // Amount is already in escrow
+        hash: `ESCROW_FINISH_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        timestamp: new Date(),
+        validated: true,
+      };
+      console.log(`[XRPLClient] MOCK: Escrow finished: ${mockTx.hash}`);
+      return mockTx;
+    }
+
+    try {
+      if (!this.client) {
+        throw new Error('XRPL client not connected');
+      }
+
+      if (!this.poolWallet) {
+        throw new Error('Pool wallet not initialized');
+      }
+
+      // Prepare escrow finish transaction
+      const escrowFinish: any = {
+        TransactionType: 'EscrowFinish',
+        Account: this.poolWallet.address,
+        Owner: owner,
+        OfferSequence: escrowSequence,
+      };
+
+      // Add fulfillment if provided
+      if (fulfillment) {
+        escrowFinish.Fulfillment = fulfillment;
+      }
+
+      // Submit and wait for validation
+      const result = await this.client.submitAndWait(escrowFinish, { wallet: this.poolWallet });
+
+      const transaction: XRPLTransaction = {
+        type: 'EscrowFinish',
+        from: this.poolWallet.address,
+        to: owner,
+        amount: 0,
+        hash: result.result.hash,
+        timestamp: new Date(),
+        validated: result.result.validated || false,
+      };
+
+      console.log(`[XRPLClient] Escrow finished: ${transaction.hash}`);
+      return transaction;
+    } catch (error) {
+      console.error('[XRPLClient] Escrow finish failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel an escrow
+   */
+  async cancelEscrow(
+    owner: string,
+    escrowSequence: number
+  ): Promise<XRPLTransaction> {
+    if (this.mockMode) {
+      // Mock: simulate escrow cancel
+      await this.delay(500);
+      const mockTx: XRPLTransaction = {
+        type: 'EscrowCancel',
+        from: this.config.poolWalletAddress,
+        to: owner,
+        amount: 0,
+        hash: `ESCROW_CANCEL_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        timestamp: new Date(),
+        validated: true,
+      };
+      console.log(`[XRPLClient] MOCK: Escrow cancelled: ${mockTx.hash}`);
+      return mockTx;
+    }
+
+    try {
+      if (!this.client) {
+        throw new Error('XRPL client not connected');
+      }
+
+      if (!this.poolWallet) {
+        throw new Error('Pool wallet not initialized');
+      }
+
+      // Prepare escrow cancel transaction
+      const escrowCancel = {
+        TransactionType: 'EscrowCancel',
+        Account: this.poolWallet.address,
+        Owner: owner,
+        OfferSequence: escrowSequence,
+      };
+
+      // Submit and wait for validation
+      const result = await this.client.submitAndWait(escrowCancel, { wallet: this.poolWallet });
+
+      const transaction: XRPLTransaction = {
+        type: 'EscrowCancel',
+        from: this.poolWallet.address,
+        to: owner,
+        amount: 0,
+        hash: result.result.hash,
+        timestamp: new Date(),
+        validated: result.result.validated || false,
+      };
+
+      console.log(`[XRPLClient] Escrow cancelled: ${transaction.hash}`);
+      return transaction;
+    } catch (error) {
+      console.error('[XRPLClient] Escrow cancel failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Convert JavaScript Date to Ripple Time
+   * Ripple epoch: January 1, 2000 (946684800 seconds after Unix epoch)
+   */
+  private dateToRippleTime(date: Date): number {
+    return Math.floor(date.getTime() / 1000) - 946684800;
   }
 
   /**
