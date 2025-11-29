@@ -14,6 +14,7 @@ import { GovernanceVoting } from './components/governance/GovernanceVoting';
 import { ClimateImpactMode } from './components/climate/ClimateImpactMode';
 import { EmergencyAlert } from './features/emergency/components';
 import { QRCodeDemo } from './components/qr/QRCodeDemo';
+import OnChainExplorer from './pages/OnChainExplorer';
 
 function App() {
   return (
@@ -57,6 +58,11 @@ function App() {
         <QRCodeDemo />
       </section>
 
+      {/* On-Chain Explorer Section */}
+      <section id="onchain-section" className="bg-white">
+        <OnChainExplorer />
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -97,6 +103,11 @@ function App() {
                 <li>
                   <a href="#qr-section" className="hover:text-white transition-colors">
                     QR Code Generator
+                  </a>
+                </li>
+                <li>
+                  <a href="#onchain-section" className="hover:text-white transition-colors">
+                    On-Chain Explorer
                   </a>
                 </li>
               </ul>
