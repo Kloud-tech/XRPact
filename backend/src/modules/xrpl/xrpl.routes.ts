@@ -7,10 +7,12 @@
 import { Router } from 'express';
 import { XRPLController } from './controllers/xrpl.controller';
 import KYCController from './controllers/kyc.controller';
+import XamanController from './controllers/xaman.controller';
 
 const router = Router();
 const controller = new XRPLController();
 const kycController = new KYCController();
+const xamanController = new XamanController();
 
 // ==========================================================================
 // XRPL ROUTES
@@ -198,5 +200,73 @@ router.get('/kyc/list/all', kycController.listAllKYC);
  * GET /api/kyc/:kycId/export
  */
 router.get('/kyc/:kycId/export', kycController.exportKYC);
+
+// ==========================================================================
+// XAMAN MULTISIG ROUTES
+// ==========================================================================
+
+/**
+ * Generate Wallet Connection QR Code
+ * GET /api/xrpl/xaman/connect
+ */
+router.get('/xaman/connect', xamanController.generateConnectionQR);
+
+/**
+ * Create Multisig Transaction Request
+ * POST /api/xrpl/xaman/multisig/request
+ * Body: { transaction, signers[], requiredSignatures, description? }
+ */
+router.post('/xaman/multisig/request', xamanController.createMultisigRequest);
+
+/**
+ * Register Signature for Multisig
+ * POST /api/xrpl/xaman/multisig/:multisigId/sign
+ * Body: { address, signature, userToken? }
+ */
+router.post('/xaman/multisig/:multisigId/sign', xamanController.registerSignature);
+
+/**
+ * Get Multisig Transaction Status
+ * GET /api/xrpl/xaman/multisig/:multisigId/status
+ */
+router.get('/xaman/multisig/:multisigId/status', xamanController.getMultisigStatus);
+
+/**
+ * Execute Multisig Transaction
+ * POST /api/xrpl/xaman/multisig/:multisigId/execute
+ */
+router.post('/xaman/multisig/:multisigId/execute', xamanController.executeMultisig);
+
+/**
+ * Reject Multisig Transaction
+ * POST /api/xrpl/xaman/multisig/:multisigId/reject
+ * Body: { signer, reason? }
+ */
+router.post('/xaman/multisig/:multisigId/reject', xamanController.rejectMultisig);
+
+/**
+ * Get Wallet Multisig Information
+ * GET /api/xrpl/xaman/wallet/:address/multisig-info
+ */
+router.get('/xaman/wallet/:address/multisig-info', xamanController.getWalletMultisigInfo);
+
+/**
+ * List Pending Multisig Transactions for Address
+ * GET /api/xrpl/xaman/wallet/:address/pending
+ */
+router.get('/xaman/wallet/:address/pending', xamanController.listPendingMultisig);
+
+/**
+ * Export Multisig Data
+ * GET /api/xrpl/xaman/multisig/:multisigId/export
+ */
+router.get('/xaman/multisig/:multisigId/export', xamanController.exportMultisigData);
+
+/**
+ * Xaman Webhook Callback
+ * POST /api/xrpl/xaman/webhook
+ * Body: { uuid, txid, meta }
+ */
+router.post('/xaman/webhook', xamanController.handleCallback);
 
 export default router;

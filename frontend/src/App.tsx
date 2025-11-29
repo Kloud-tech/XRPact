@@ -20,6 +20,7 @@ import { DemoFlow } from './components/DemoFlow';
 import { WorldMap } from './components/impact-map/WorldMap';
 import { RedistributionTimeline } from './components/dashboard/RedistributionTimeline';
 import KYCVerification from './components/KYCVerification';
+import XamanWalletConnect from './components/XamanWalletConnect';
 import OnChainExplorer from './pages/OnChainExplorer';
 
 function App() {
@@ -53,10 +54,17 @@ function App() {
         </div>
       </section>
 
-      {/* KYC Verification Section */}
+      {/* KYC Section */}
       <section id="kyc-section" className="bg-gradient-to-br from-blue-50 to-indigo-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <KYCVerification />
+        </div>
+      </section>
+
+      {/* Xaman Multisig Section */}
+      <section id="xaman-section" className="bg-gradient-to-br from-purple-50 to-pink-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <XamanWalletConnect />
         </div>
       </section>
 
