@@ -288,6 +288,13 @@ export class XRPLClientService {
   }
 
   /**
+   * Get pool wallet address
+   */
+  getPoolAddress(): string {
+    return this.poolWallet?.address || this.config.poolWalletAddress || 'rMockPoolWallet123';
+  }
+
+  /**
    * Create an escrow for a project
    * Funds are locked until conditions are met
    */
@@ -471,6 +478,86 @@ export class XRPLClientService {
       return transaction;
     } catch (error) {
       console.error('[XRPLClient] Escrow cancel failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mint an NFT on XRPL
+   * Used for SBTs (Soulbound Tokens) and Impact NFTs
+   */
+  async mintNFT(
+    uri: string,
+    flags: number = 1, // 1 = burnable, 8 = transferable
+    transferFee: number = 0
+  ): Promise<{ nftTokenId: string; txHash: string }> {
+    if (this.mockMode) {
+      // Mock mode
+      await this.delay(500);
+      const mockResult = {
+        nftTokenId: `MOCK_NFT_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        txHash: `MOCK_TX_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      };
+      console.log(`[XRPLClient] MOCK: NFT minted: ${mockResult.nftTokenId}`);
+      return mockResult;
+    }
+
+    try {
+      if (!this.client) {
+        throw new Error('XRPL client not connected');
+      }
+
+      if (!this.poolWallet) {
+        throw new Error('Pool wallet not initialized');
+      }
+
+      console.log(`[XRPLClient] Minting NFT with URI length: ${uri.length}`);
+
+      // Prepare NFTokenMint transaction
+      const nftMint = {
+        TransactionType: 'NFTokenMint',
+        Account: this.poolWallet.address,
+        URI: uri,
+        Flags: flags,
+        TransferFee: transferFee,
+        NFTokenTaxon: 0, // Required field, can be used for categorization
+      };
+
+      // Submit and wait for validation
+      const result = await this.client.submitAndWait(nftMint, { wallet: this.poolWallet });
+
+      // Extract NFTokenID from metadata
+      const meta = (result.result as any).meta;
+      let nftTokenId = '';
+
+      if (meta && meta.nftoken_id) {
+        nftTokenId = meta.nftoken_id;
+      } else if (meta && meta.AffectedNodes) {
+        // Search for the newly created NFToken in AffectedNodes
+        for (const node of meta.AffectedNodes) {
+          if (node.CreatedNode && node.CreatedNode.NewFields && node.CreatedNode.NewFields.NFTokens) {
+            const nfts = node.CreatedNode.NewFields.NFTokens;
+            if (nfts.length > 0) {
+              nftTokenId = nfts[0].NFToken.NFTokenID;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!nftTokenId) {
+        throw new Error('Failed to extract NFTokenID from transaction result');
+      }
+
+      console.log(`[XRPLClient] NFT minted successfully: ${nftTokenId}`);
+      console.log(`[XRPLClient] TX Hash: ${result.result.hash}`);
+
+      return {
+        nftTokenId,
+        txHash: result.result.hash,
+      };
+    } catch (error) {
+      console.error('[XRPLClient] NFT minting failed:', error);
       throw error;
     }
   }

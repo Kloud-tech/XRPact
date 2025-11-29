@@ -4,29 +4,27 @@
  * Provides utilities for connecting to GemWallet and interacting with XRPL
  */
 
-export interface GemWalletResponse {
-  result: {
-    address: string;
-    publicKey?: string;
-  };
-}
-
-export interface PaymentRequest {
-  amount: string;
-  destination: string;
-}
-
-export interface PaymentResponse {
-  result: {
-    hash: string;
-  };
-}
+import { isInstalled, getAddress, sendPayment as gemSendPayment } from '@gemwallet/api';
 
 /**
  * Check if GemWallet is installed
  */
 export const isGemWalletInstalled = (): boolean => {
-  return typeof window !== 'undefined' && 'gemWallet' in window;
+  try {
+    // Try the official SDK first
+    const sdkInstalled = isInstalled();
+
+    // Fallback: check window object directly
+    const directCheck = typeof window !== 'undefined' && !!(window as any).gemwallet;
+
+    const result = sdkInstalled || directCheck;
+    console.log('[GemWallet] Installation check:', { sdkInstalled, directCheck, result });
+    return result;
+  } catch (error) {
+    console.error('[GemWallet] Detection error:', error);
+    // Final fallback
+    return typeof window !== 'undefined' && !!(window as any).gemwallet;
+  }
 };
 
 /**
@@ -38,8 +36,7 @@ export const connectGemWallet = async (): Promise<string> => {
   }
 
   try {
-    const wallet = (window as any).gemWallet;
-    const response: GemWalletResponse = await wallet.getAddress();
+    const response = await getAddress();
 
     if (!response?.result?.address) {
       throw new Error('Failed to get wallet address');
@@ -64,13 +61,10 @@ export const sendPayment = async (
   }
 
   try {
-    const wallet = (window as any).gemWallet;
-    const payment: PaymentRequest = {
+    const response = await gemSendPayment({
       amount,
       destination,
-    };
-
-    const response: PaymentResponse = await wallet.sendPayment(payment);
+    });
 
     if (!response?.result?.hash) {
       throw new Error('Payment failed - no transaction hash received');
@@ -80,29 +74,6 @@ export const sendPayment = async (
   } catch (error: any) {
     console.error('[GemWallet] Payment failed:', error);
     throw new Error(error.message || 'Payment failed');
-  }
-};
-
-/**
- * Get public key from GemWallet
- */
-export const getPublicKey = async (): Promise<string> => {
-  if (!isGemWalletInstalled()) {
-    throw new Error('GemWallet is not installed');
-  }
-
-  try {
-    const wallet = (window as any).gemWallet;
-    const response: GemWalletResponse = await wallet.getAddress();
-
-    if (!response?.result?.publicKey) {
-      throw new Error('Failed to get public key');
-    }
-
-    return response.result.publicKey;
-  } catch (error: any) {
-    console.error('[GemWallet] Get public key failed:', error);
-    throw new Error(error.message || 'Failed to get public key');
   }
 };
 

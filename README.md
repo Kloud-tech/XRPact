@@ -1,461 +1,156 @@
-# XRPL Impact Fund 🌍
+# 🌍 XRPL Impact Fund
 
-> Complete charitable fund platform with AI-driven redistribution, KYC compliance, and Impact NFTs
+**A perpetual humanitarian funding platform built on XRPL Testnet**
 
-[![XRPL](https://img.shields.io/badge/XRPL-Testnet-blue)](https://xrpl.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-green)](https://www.docker.com/)
-[![KYC](https://img.shields.io/badge/KYC-Compliant-green)](./KYC_IMPLEMENTATION.md)
-
-**Status**: 🚀 **PRODUCTION READY** | ✅ **100% Complete** | 🏆 **Hackathon Optimized**
+Turn your XRP donation into a sustainable engine for good. Your principal generates yield through XRPL AMM pools, and 100% of profits fund verified humanitarian projects with complete on-chain transparency.
 
 ---
 
-## 🎯 The Solution
-
-**XRPL Impact Fund** transforms charitable giving with:
-
-✅ **Secure Donations** - Accept XRP donations with KYC verification
-✅ **Smart Capital Growth** - AI-driven portfolio management
-✅ **Automatic Redistribution** - Monthly profits to verified NGOs
-✅ **Impact Gamification** - Evolving tier NFTs (Bronze→Silver→Gold→Platinum)
-✅ **Governance Rights** - Vote with Soulbound Impact Tokens
-✅ **Climate Tracking** - Measure and visualize environmental impact
-✅ **KYC Compliance** - Production-grade Know Your Customer system
-✅ **Multisig Security** - Xaman integration for multi-signature approvals
-- No engagement → One-time donors
-- No climate impact tracking
-
-**Our Solution:**
-Turn every donation into a perpetual engine for social and environmental good.
-
----
-
-## 🚀 Key Features
-
-### 1. 💎 Donor Impact Tokens (DIT)
-- Soulbound, non-transferable tokens
-- Unlock governance rights (vote on funded NGOs)
-- Level-based badges: Bronze → Silver → Gold → Platinum → Diamond
-- Exclusive dashboard features
-
-### 2. 🎨 Evolving Impact NFTs
-- Dynamic NFTs that change based on donor activity
-- +XP for donations, redistributions, governance votes
-- Visual evolution: color, shape, aura
-- Shareable impact stories
-
-### 3. 🌱 Climate Impact Mode
-- Automatic allocation to certified environmental projects
-- CO₂ offset tracking
-- Reforestation, clean water, renewable energy initiatives
-
-### 4. 🔍 Impact Oracle
-- Validates NGO legitimacy via UN/OECD open data APIs
-- Provides Impact Scores for transparency
-- Real-time verification
-
-### 5. 📊 Humanitarian Aid Transparency Dashboard
-- Live donation feed
-- AI trading performance
-- Redistribution tracker
-- Geographic impact map
-- CO₂ compensation metrics
-- ONG Impact Scores
-
-### 6. 🔐 Multisig Security (Xaman Integration)
-- QR code-based wallet connection
-- Multi-signature transaction approval workflows
-- Real-time signature tracking
-- 24-hour request expiry
-- Signer authorization management
-
-### 7. 📖 Donation Stories
-- Each redistribution generates a shareable story with:
-  - NGO funded
-  - Exact amount
-  - XRPL transaction hash
-  - Project description
-  - Visual impact (trees planted, wells funded, etc.)
-  - QR code for verification
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React** + **TypeScript** + **Vite**
-- **TailwindCSS** for styling
-- **Recharts** for data visualization
-- **xrpl.js** for XRPL integration
-- **Framer Motion** for animations
-
-### Backend
-- **Node.js** + **Express** + **TypeScript**
-- **XRPL Hooks** / **Xahau Smart Contracts**
-- **Python** for AI trading algorithm (Flask API)
-- **PostgreSQL** for donor/NGO data
-- **Redis** for caching
-
-### Blockchain
-- **XRP Ledger** (Mainnet/Testnet)
-- **Xahau** for smart contract execution
-- **XRPL Hooks** for automated redistribution
-
-### AI/ML
-- **Python** (NumPy, Pandas, TA-Lib)
-- **RSI 14** + **Moving Average Crossover**
-- Mock RL environment for demo
-
----
-
-## 📁 Project Structure
-
-```
-xrpl-impact-fund/
-├── frontend/                 # React dashboard
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   │   ├── DonorDashboard/
-│   │   │   ├── ImpactNFT/
-│   │   │   ├── DonationStory/
-│   │   │   ├── Leaderboard/
-│   │   │   ├── ImpactMap/
-│   │   │   └── TransparencyPanel/
-│   │   ├── pages/            # Page components
-│   │   ├── services/         # API clients
-│   │   ├── hooks/            # Custom React hooks
-│   │   ├── types/            # TypeScript types
-│   │   ├── utils/            # Helper functions
-│   │   └── assets/           # Images, fonts, etc.
-│   ├── package.json
-│   └── vite.config.ts
-│
-├── backend/                  # Node.js API + Smart Contracts
-│   ├── src/
-│   │   ├── contracts/        # XRPL Hooks / Xahau contracts
-│   │   ├── services/         # Business logic
-│   │   │   ├── ai-trading/   # AI algorithm service
-│   │   │   ├── impact-oracle/ # NGO verification
-│   │   │   ├── nft-manager/  # NFT minting/evolution
-│   │   │   └── distribution/ # Profit redistribution
-│   │   ├── api/              # Express routes
-│   │   ├── config/           # Configuration
-│   │   ├── utils/            # Utilities
-│   │   └── types/            # TypeScript types
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── docs/                     # Documentation
-│   ├── ARCHITECTURE.md
-│   ├── PITCH_DECK.md
-│   ├── API.md
-│   └── DEPLOYMENT.md
-│
-├── scripts/                  # Utility scripts
-│   ├── deploy-contracts.ts
-│   ├── seed-ngos.ts
-│   └── simulate-trading.py
-│
-├── tests/                    # Test suites
-│   ├── unit/
-│   ├── integration/
-│   └── e2e/
-│
-├── .env.example
-├── .gitignore
-├── docker-compose.yml
-└── README.md
-```
-
----
-
-## 🏃 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.10+
-- PostgreSQL 14+
-- Redis
-- XRPL Testnet wallet
+- Git
+- GemWallet browser extension (for donations)
 
 ### Installation
 
 ```bash
-# Clone repository
-git clone <your-repo>
-cd xrpl-impact-fund
-
-# Install frontend dependencies
-cd frontend
-npm install
+# Clone the repository
+git clone <repository-url>
+cd "XRPact Hack For Good"
 
 # Install backend dependencies
-cd ../backend
+cd backend
 npm install
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your XRPL credentials
-
-# Start PostgreSQL + Redis (via Docker)
-docker-compose up -d
-
-# Run database migrations
-npm run migrate
-
-# Seed NGO data
-npm run seed
-
-# Start development servers
-npm run dev:all
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
-### Quick Demo
+### Running the Application
 
+**Start Backend (Terminal 1):**
 ```bash
-# Terminal 1: Frontend
-cd frontend && npm run dev
-
-# Terminal 2: Backend
-cd backend && npm run dev
-
-# Terminal 3: AI Trading Simulator
-cd backend/src/services/ai-trading && python simulate.py
+cd backend
+npm run dev
 ```
+Backend runs on: `http://localhost:3000`
 
-Visit `http://localhost:5173`
-
----
-
-## 🏗️ Architecture
-
-### Flow Diagram
-
-```
-Donor → XRPL Deposit → Smart Contract
-                ↓
-        Pool Management
-                ↓
-        AI Trading Algorithm (MA/RSI)
-                ↓
-        Profits Generated
-                ↓
-        Impact Oracle validates NGOs
-                ↓
-        Auto-redistribution → NGO wallets
-                ↓
-        Donation Story created
-                ↓
-        NFT evolves (+XP)
-                ↓
-        Dashboard updates
-```
-
-### Smart Contract Logic (Pseudo-code)
-
-```javascript
-on_deposit(amount, donor_address):
-  pool_balance += amount
-  mint_impact_nft(donor_address)
-  update_leaderboard(donor_address, amount)
-  emit DonationReceived(amount, donor_address)
-
-on_profit_generated(profit):
-  validated_ngos = impact_oracle.get_top_ngos()
-  for ngo in validated_ngos:
-    share = profit * ngo.weight
-    transfer(ngo.wallet, share)
-    create_donation_story(ngo, share)
-    emit ProfitDistributed(ngo, share)
-
-on_governance_vote(donor_address, ngo_id):
-  require(has_dit_token(donor_address))
-  votes[ngo_id] += donor_xp
-  evolve_nft(donor_address, +10_XP)
-```
-
----
-
-## 🎯 Hackathon Alignment
-
-### XRPL "Crypto for Good" Judging Criteria
-
-| Criterion | How We Address It |
-|-----------|-------------------|
-| **IDEA** - Unique use of XRPL impossible in Web2 | ✅ Soulbound Impact Tokens<br>✅ Evolving NFTs<br>✅ On-chain Impact Oracle<br>✅ Programmable redistribution |
-| **IMPACT** - Meaningful real-world application | ✅ Sustainable NGO funding<br>✅ Climate action tracking<br>✅ Transparent aid distribution<br>✅ Restored donor trust |
-| **TECHNICAL** - Quality of code & integration | ✅ XRPL Hooks/Xahau contracts<br>✅ AI trading algorithm<br>✅ Impact Oracle<br>✅ Full-stack TypeScript |
-| **EXECUTION** - Completeness of implementation | ✅ Working prototype<br>✅ Live dashboard<br>✅ Smart contract deployed<br>✅ Demo-ready |
-
-### Themes Covered
-- ✅ **Climate Action** - Climate Impact Mode with CO₂ tracking
-- ✅ **Transparent Aid** - Full XRPL transparency + Impact Oracle
-- ✅ **Community** - Donor governance + leaderboards
-- ✅ **Gamification** - Evolving NFTs + XP system
-
----
-
-## 📈 Roadmap
-
-### Phase 1: Hackathon MVP ✅
-- [x] Core smart contract
-- [x] Basic AI trading simulator
-- [x] Dashboard with donation feed
-- [x] Impact NFT minting
-- [x] Transparency panel
-
-### Phase 2: Post-Hackathon
-- [ ] Deploy to XRPL Mainnet
-- [ ] Integrate real trading API (Binance/Kraken)
-- [ ] Advanced RL algorithm
-- [ ] Mobile app (React Native)
-- [ ] Multi-language support
-
-### Phase 3: Scale
-- [ ] Partner with 50+ NGOs
-- [ ] $1M+ in donations processed
-- [ ] Climate Impact certification
-## 📚 Documentation
-
-- **[KYC System Documentation](./backend/src/modules/xrpl/KYC_IMPLEMENTATION.md)** - Complete KYC verification guide
-- **[Xaman Integration Guide](./backend/src/modules/xrpl/XAMAN_INTEGRATION.md)** - Multisig wallet setup and usage
-- **[Architecture Guide](./docs/ARCHITECTURE.md)** - System design and data flow
-- **[API Documentation](./backend/src/modules/xrpl/API_TESTING_GUIDE.md)** - Complete API reference
-
----
-
-## 🔧 System Requirements
-
-| Component | Requirement |
-|-----------|-------------|
-| Node.js | 18+ |
-| React | 18+ |
-| TypeScript | 5.0+ |
-| XRPL Network | Testnet/Mainnet |
-| Python (AI) | 3.10+ |
-| Docker | Optional |
-
----
-
-## ✨ Features Checklist
-
-### Core Features
-- ✅ Donor wallet connection via QR code
-- ✅ XRP donation processing
-- ✅ KYC verification (low/medium/high risk)
-- ✅ Multisig approvals via Xaman
-- ✅ NGO validation (Impact Oracle)
-- ✅ Automatic profit distribution
-- ✅ Donation story generation
-
-### NFT System
-- ✅ Soulbound Token (SBT) minting
-- ✅ Impact NFT evolution
-- ✅ XP-based leveling system
-- ✅ Tier progression (Bronze→Diamond)
-- ✅ NFT gallery display
-
-### Dashboard
-- ✅ Pool balance visualization
-- ✅ Profit performance charts
-- ✅ Redistribution tracking
-- ✅ World impact map
-- ✅ Timeline animation
-- ✅ Climate metrics
-- ✅ NGO directory
-- ✅ Governance voting
-
-### Admin Features
-- ✅ KYC record management
-- ✅ NGO registration
-- ✅ Transaction monitoring
-- ✅ Report generation
-- ✅ Data export
-
----
-
-## 🚀 Deployment
-
-### Docker Deployment
+**Start Frontend (Terminal 2):**
 ```bash
-# Build containers
-docker-compose build
-
-# Start services
-docker-compose up -d
-
-# Access services
-Frontend: http://localhost:3000
-Backend API: http://localhost:3001
+cd frontend
+npm run dev
 ```
+Frontend runs on: `http://localhost:5173`
 
-### Environment Variables
-```bash
-# XRPL Configuration
-XRPL_NETWORK=testnet
-XRPL_ACCOUNT=rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XRPL_SECRET=sXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---
 
-# KYC Configuration
-KYC_RISK_THRESHOLD_HIGH=60
-KYC_RISK_THRESHOLD_MEDIUM=30
-KYC_VALIDITY_DAYS=365
+## 💡 Key Features
 
-# Xaman Configuration
-XAMAN_API_KEY=your_api_key
-XAMAN_WEBHOOK_URL=https://your-domain/api/xrpl/xaman/webhook
-```
+✅ **Real XRPL Integration** - Live Testnet, Real NFTs, Verified Transactions  
+✅ **GemWallet Support** - Connect wallet, Make donations, Track impact  
+✅ **Smart Fund Management** - Perpetual pool, AMM yield, 100% profit distribution  
+✅ **Complete Transparency** - On-chain data, Real-time tracking, Immutable records  
+
+---
+
+## 🎯 How It Works
+
+1. **Donate XRP** → Your donation enters the perpetual pool
+2. **Generate Yield** → Pool participates in XRPL AMM to earn profits
+3. **Fund Projects** → 100% of profits go to verified humanitarian projects
+4. **Track Impact** → Receive non-transferable SBT showing your lifetime impact
+5. **Governance** → Vote on project selection based on your contribution level
+
+---
+
+## 📊 Current Pool State (Live from XRPL Testnet)
+
+All data is real-time from blockchain:
+- Pool Balance
+- Total Donors  
+- Profits Generated
+- Projects Funded
+- Live Transactions
+
+---
+
+## 🔑 API Endpoints
+
+### Pool Management
+- `GET /api/xrpl/pool` - Get pool state
+- `POST /api/xrpl/deposit` - Make donation
+- `POST /api/xrpl/simulate-profit` - Simulate AMM yield
+
+### Projects
+- `GET /api/xrpl/projects` - List all projects
+- `POST /api/xrpl/projects` - Create new project
+
+### SBTs (Soulbound Tokens)
+- `POST /api/xrpl/sbt/mint` - Mint impact SBT
+- `GET /api/xrpl/sbt/:tokenId` - Read SBT metadata
+
+### Transactions
+- `GET /api/xrpl/transactions` - Get recent XRPL transactions
 
 ---
 
 ## 🧪 Testing
 
+### Add Test Donation
 ```bash
-# Run all tests
-npm run test
+curl -X POST http://localhost:3000/api/xrpl/deposit \
+  -H "Content-Type: application/json" \
+  -d '{"donorAddress":"rTestWallet123", "amount":1000}'
+```
 
-# Run with coverage
-npm run test:coverage
-
-# E2E tests
-npm run test:e2e
-
-# Unit tests only
-npm run test:unit
+### Simulate Yield
+```bash
+curl -X POST http://localhost:3000/api/xrpl/simulate-profit \
+  -H "Content-Type: application/json" \
+  -d '{"profitPercentage":0.67}'
 ```
 
 ---
 
-## 🤝 Contributing
+## 🌐 Environment Variables
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md)
+Create `.env` in `/backend`:
 
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE)
-
----
-
-## 👥 Team
-
-**Your Team Name**
-- Developer 1 - Smart Contracts & Backend
-- Developer 2 - Frontend & UX
-- Developer 3 - AI/ML & Data
-- Advisor - XRPL Expert
+```env
+XRPL_POOL_WALLET_SEED=sXXXXXXXXXXXXXX
+XRPL_POOL_WALLET_ADDRESS=rXXXXXXXXXXXXXX
+PORT=3000
+NODE_ENV=development
+```
 
 ---
 
-## 📞 Contact
+## 🏗️ Tech Stack
 
-- Website: [your-demo-site.com]
-- Twitter: [@xrpl_impact]
-- Email: team@xrplimpact.fund
+**Backend:** TypeScript, Express.js, XRPL.js, Socket.io  
+**Frontend:** React 18, TypeScript, Tailwind CSS, Framer Motion, @gemwallet/api  
 
 ---
 
-**Built with ❤️ for XRPL Hackathon 2025**
+## 📝 Project Structure
+
+```
+├── backend/
+│   └── src/modules/xrpl/
+│       ├── controllers/
+│       ├── services/
+│       └── xrpl.routes.ts
+├── frontend/
+│   └── src/
+│       ├── components/
+│       ├── hooks/
+│       └── lib/
+└── README.md
+```
+
+---
+
+**Built with ❤️ for humanitarian impact on XRPL**

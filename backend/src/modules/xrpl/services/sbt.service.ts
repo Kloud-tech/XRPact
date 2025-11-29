@@ -103,25 +103,33 @@ export class SBTService {
       }
 
       // PRODUCTION: Use real XRPL NFToken
-      // This requires:
-      // 1. xrpl.NFTokenMint transaction
-      // 2. URI field encoded with metadata
-      // 3. Flags = 0x00000001 (Burnable, so donor can burn but NOT transfer)
-      // 4. TransferFee = 0 (no transfer allowed)
+      // Mint actual on-chain SBT (non-transferable NFT)
 
-      const nftTokenId = `PRODUCTION_${Date.now()}`;
-      const txHash = `PRODUCTION_TX_${Date.now()}`;
+      // Encode metadata as URI (base64 JSON)
+      const metadataJson = JSON.stringify(metadata);
+      const uri = Buffer.from(metadataJson).toString('hex').toUpperCase();
 
-      this.sbts.set(nftTokenId, metadata);
+      console.log(`[SBT Service] Minting real NFT on XRPL for ${donorAddress}`);
+      console.log(`[SBT Service] Metadata URI (hex):`, uri);
 
-      console.log(
-        `[SBT Service] PRODUCTION: NFTokenMint prepared (requires wallet signing)`
+      // Mint NFT with flags:
+      // 0x00000008 = tfTransferable (we DON'T set this - makes it non-transferable/soulbound)
+      // 0x00000001 = tfBurnable (allow donor to burn their own SBT)
+      const result = await this.xrplClient.mintNFT(
+        uri,
+        1, // flags: burnable only (soulbound)
+        0  // transferFee: 0 (no transfers allowed)
       );
+
+      this.sbts.set(result.nftTokenId, metadata);
+
+      console.log(`[SBT Service] Real SBT minted: ${result.nftTokenId}`);
+      console.log(`[SBT Service] TX Hash: ${result.txHash}`);
 
       return {
         success: true,
-        nftTokenId,
-        txHash,
+        nftTokenId: result.nftTokenId,
+        txHash: result.txHash,
         metadata,
       };
     } catch (error: any) {

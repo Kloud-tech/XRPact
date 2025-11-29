@@ -4,7 +4,7 @@
  * Allows users to make donations via GemWallet
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import { useWallet } from '../../contexts/WalletContext';
@@ -12,19 +12,34 @@ import { sendPayment } from '../../lib/gemwallet';
 import api from '../../services/api';
 
 interface DonationFormProps {
-  poolAddress?: string;
   onSuccess?: (txHash: string) => void;
 }
 
-export const DonationForm: React.FC<DonationFormProps> = ({
-  poolAddress = 'rXRPLImpactPool',
-  onSuccess
-}) => {
+export const DonationForm: React.FC<DonationFormProps> = ({ onSuccess }) => {
   const { address, isConnected } = useWallet();
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [poolAddress, setPoolAddress] = useState<string>('');
+
+  // Fetch real pool address from backend
+  useEffect(() => {
+    const fetchPoolAddress = async () => {
+      try {
+        const response = await api.get('/pool');
+        // Get pool wallet address from health endpoint
+        const healthResponse = await api.get('/health');
+        if (healthResponse.data?.pool?.address) {
+          setPoolAddress(healthResponse.data.pool.address);
+          console.log('[DonationForm] Pool address:', healthResponse.data.pool.address);
+        }
+      } catch (err) {
+        console.error('[DonationForm] Failed to fetch pool address:', err);
+      }
+    };
+    fetchPoolAddress();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +76,14 @@ export const DonationForm: React.FC<DonationFormProps> = ({
       if (onSuccess) {
         onSuccess(txHash);
       }
+
+      // Scroll to world map section after successful donation
+      setTimeout(() => {
+        const mapSection = document.getElementById('world-map-section');
+        if (mapSection) {
+          mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 1500);
     } catch (err: any) {
       console.error('[DonationForm] Failed:', err);
       setError(err.message || 'Donation failed');

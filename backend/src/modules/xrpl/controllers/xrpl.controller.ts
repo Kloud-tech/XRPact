@@ -580,12 +580,14 @@ export class XRPLController {
     try {
       const isMockMode = this.xrplClient.isMockMode();
       const poolState = this.poolService.getPoolState();
+      const poolAddress = this.xrplClient.getPoolAddress();
 
       res.status(200).json({
         status: 'ok',
         mode: isMockMode ? 'MOCK' : 'LIVE',
         connected: true,
         pool: {
+          address: poolAddress,
           balance: poolState.totalBalance,
           donors: poolState.donorCount,
         },
