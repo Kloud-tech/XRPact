@@ -3,7 +3,11 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(curl:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(del:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

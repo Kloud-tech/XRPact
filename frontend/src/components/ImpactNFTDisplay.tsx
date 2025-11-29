@@ -82,7 +82,7 @@ export const ImpactNFTDisplay: React.FC<ImpactNFTDisplayProps> = ({
     const fetchNFT = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:3000/api/xrpl/impact-nft/${nftTokenId}`);
+        const res = await fetch(`/api/xrpl/impact-nft/${nftTokenId}`);
         const data = await res.json();
 
         if (data.success) {
@@ -111,7 +111,7 @@ export const ImpactNFTDisplay: React.FC<ImpactNFTDisplayProps> = ({
   const fetchAllNFTs = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/xrpl/impact-nft/list/all');
+      const res = await fetch('/api/xrpl/impact-nft/list/all');
       const data = await res.json();
 
       if (data.success) {
@@ -131,7 +131,7 @@ export const ImpactNFTDisplay: React.FC<ImpactNFTDisplayProps> = ({
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/xrpl/impact-nft/${nftData.nftTokenId}/export`
+        `/api/xrpl/impact-nft/${nftData.nftTokenId}/export`
       );
 
       if (res.ok) {

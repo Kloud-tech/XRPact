@@ -7,7 +7,7 @@
 import axios from 'axios';
 import { Project } from '../components/map/RealWorldMap';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/xrpl';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/xrpl';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

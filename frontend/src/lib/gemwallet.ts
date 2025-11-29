@@ -26,7 +26,28 @@ export interface PaymentResponse {
  * Check if GemWallet is installed
  */
 export const isGemWalletInstalled = (): boolean => {
-  return typeof window !== 'undefined' && 'gemWallet' in window;
+  if (typeof window === 'undefined') return false;
+
+  // Check for GemWallet in various locations
+  return 'gemWallet' in window ||
+         ('xrpToolkit' in window && !!(window as any).xrpToolkit?.gemWallet) ||
+         !!(window as any).GemWallet;
+};
+
+/**
+ * Get GemWallet instance
+ */
+const getGemWallet = () => {
+  if ((window as any).gemWallet) {
+    return (window as any).gemWallet;
+  }
+  if ((window as any).GemWallet) {
+    return (window as any).GemWallet;
+  }
+  if ((window as any).xrpToolkit?.gemWallet) {
+    return (window as any).xrpToolkit.gemWallet;
+  }
+  throw new Error('GemWallet not found. Please make sure the extension is installed and enabled.');
 };
 
 /**
@@ -34,21 +55,48 @@ export const isGemWalletInstalled = (): boolean => {
  */
 export const connectGemWallet = async (): Promise<string> => {
   if (!isGemWalletInstalled()) {
-    throw new Error('GemWallet is not installed. Please install the GemWallet extension.');
+    throw new Error('GemWallet is not installed. Please install the GemWallet extension from https://gemwallet.app/');
   }
 
   try {
-    const wallet = (window as any).gemWallet;
-    const response: GemWalletResponse = await wallet.getAddress();
+    const wallet = getGemWallet();
+    console.log('[GemWallet] Wallet instance found:', !!wallet);
 
-    if (!response?.result?.address) {
-      throw new Error('Failed to get wallet address');
+    // Try the newer API first (v3+)
+    if (wallet.requestAddress) {
+      console.log('[GemWallet] Using requestAddress API');
+      const response = await wallet.requestAddress();
+      console.log('[GemWallet] Response:', response);
+
+      if (response?.address) {
+        return response.address;
+      }
     }
 
-    return response.result.address;
+    // Fall back to older API (v2)
+    console.log('[GemWallet] Using getAddress API');
+    const response: GemWalletResponse = await wallet.getAddress();
+    console.log('[GemWallet] Response:', response);
+
+    if (response?.result?.address) {
+      return response.result.address;
+    }
+
+    // Last resort - try direct address property
+    if (response && typeof response === 'object' && 'address' in response) {
+      return (response as any).address;
+    }
+
+    throw new Error('Failed to get wallet address from response');
   } catch (error: any) {
     console.error('[GemWallet] Connection failed:', error);
-    throw new Error(error.message || 'Failed to connect to GemWallet');
+
+    // Provide more helpful error messages
+    if (error.message?.includes('denied') || error.message?.includes('reject')) {
+      throw new Error('Connection rejected by user');
+    }
+
+    throw new Error(error.message || 'Failed to connect to GemWallet. Please try again.');
   }
 };
 
@@ -64,7 +112,7 @@ export const sendPayment = async (
   }
 
   try {
-    const wallet = (window as any).gemWallet;
+    const wallet = getGemWallet();
     const payment: PaymentRequest = {
       amount,
       destination,
@@ -92,7 +140,7 @@ export const getPublicKey = async (): Promise<string> => {
   }
 
   try {
-    const wallet = (window as any).gemWallet;
+    const wallet = getGemWallet();
     const response: GemWalletResponse = await wallet.getAddress();
 
     if (!response?.result?.publicKey) {

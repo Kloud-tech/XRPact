@@ -54,10 +54,11 @@ app.use(express.json());
 // ============================================================================
 // Import MongoDB Routes (with escrows)
 // ============================================================================
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const escrowRoutes = require('../routes/escrows.js');
-app.use('/api/escrows', escrowRoutes);
+// Temporarily disabled - needs conversion to ES modules
+// import { createRequire } from 'module';
+// const require = createRequire(import.meta.url);
+// const escrowRoutes = require('../routes/escrows.js');
+// app.use('/api/escrows', escrowRoutes);
 
 
 // ============================================================================
@@ -96,7 +97,6 @@ server.listen(PORT, () => {
   console.log(`🌐 API: http://localhost:${PORT}`);
   console.log(`💚 Health: http://localhost:${PORT}/health`);
   console.log(`📊 XRPL Pool: http://localhost:${PORT}/api/xrpl/pool`);
-  console.log(`📦 Escrows: http://localhost:${PORT}/api/escrows`);
   console.log(`🚨 Emergency: http://localhost:${PORT}/api/v1/emergency/status`);
   console.log(`⚡ WebSocket: ws://localhost:${PORT}`);
   console.log(`${'='.repeat(60)}`);

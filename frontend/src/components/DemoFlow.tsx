@@ -47,7 +47,7 @@ export const DemoFlow: React.FC = () => {
       // Step 1: Make donation
       updateStep('donation', 'running', 'Creating SBT...');
       try {
-        const donationRes = await fetch('http://localhost:3000/api/xrpl/deposit', {
+        const donationRes = await fetch('/api/xrpl/deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -72,7 +72,7 @@ export const DemoFlow: React.FC = () => {
       // Step 2: Simulate profit
       updateStep('profit', 'running', 'Generating trading profits...');
       try {
-        const profitRes = await fetch('http://localhost:3000/api/xrpl/simulate-profit', {
+        const profitRes = await fetch('/api/xrpl/simulate-profit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -101,7 +101,7 @@ export const DemoFlow: React.FC = () => {
       // Step 3: Distribute profits
       updateStep('distribute', 'running', 'Minting Impact NFT...');
       try {
-        const distributeRes = await fetch('http://localhost:3000/api/xrpl/distribute', {
+        const distributeRes = await fetch('/api/xrpl/distribute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

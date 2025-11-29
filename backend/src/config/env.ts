@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 const envPath = join(__dirname, '../../.env');
 
 console.log('[Config] Loading .env from:', envPath);
-const result = dotenv.config({ path: envPath, override: true });
+const result = dotenv.config({ path: envPath });
 
 if (result.error) {
   console.error('[Config] Error loading .env file:', result.error);

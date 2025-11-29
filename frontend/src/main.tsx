@@ -6,6 +6,7 @@ import { ImpactMapPage } from './pages/ImpactMapPage';
 import { AnalyticsDashboard } from './pages/AnalyticsDashboard';
 import { WorkflowPage } from './pages/WorkflowPage';
 import { WalletProvider } from './contexts/WalletContext';
+import './lib/gemwallet-debug';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
