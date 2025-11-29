@@ -5,17 +5,20 @@
  */
 
 import React from 'react';
-import { LandingHero } from './components/hero/LandingHero';
+import { EnhancedHero } from './components/hero/EnhancedHero';
+import { ModernDashboard } from './components/dashboard/ModernDashboard';
+import { EnhancedTransactionFlow } from './components/animations/EnhancedTransactionFlow';
+import { PandaMascot } from './components/animations/PandaMascot';
+import { FloatingLeaves } from './components/animations/FloatingLeaves';
 import { ImpactHero } from './components/hero/ImpactHero';
-import { HumanImpactDashboard } from './components/dashboard/HumanImpactDashboard';
 import { WorkflowDiagram } from './components/workflow/WorkflowDiagram';
-import { PoolBalance } from './components/pool/PoolBalance';
-import { NGOList } from './components/ngo/NGOList';
-import { NFTGallery } from './components/nft/NFTGallery';
-import { GovernanceVoting } from './components/governance/GovernanceVoting';
-import { ClimateImpactMode } from './components/climate/ClimateImpactMode';
+import { GreenPoolBalance } from './components/pool/GreenPoolBalance';
+import { GreenNGOList } from './components/ngo/GreenNGOList';
+import { GreenNFTGallery } from './components/nft/GreenNFTGallery';
+import { GreenGovernanceVoting } from './components/governance/GreenGovernanceVoting';
+import { GreenClimateImpactMode } from './components/climate/GreenClimateImpactMode';
 import { EmergencyAlert } from './features/emergency/components';
-import { QRCodeDemo } from './components/qr/QRCodeDemo';
+import { GreenQRCodeDemo } from './components/qr/GreenQRCodeDemo';
 import { SBTDisplay } from './components/SBTDisplay';
 import { ImpactNFTDisplay } from './components/ImpactNFTDisplay';
 import { DemoFlow } from './components/DemoFlow';
@@ -27,111 +30,135 @@ import OnChainExplorer from './pages/OnChainExplorer';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-teal-900 to-green-950">
+      {/* Floating Leaves Background Animation */}
+      <FloatingLeaves />
+
+      {/* Panda Mascot - Follows scroll */}
+      <PandaMascot />
+
       {/* Global Emergency Alerts */}
       <EmergencyAlert />
 
-      {/* Landing Hero Section */}
-      <LandingHero />
+      {/* Enhanced Hero Section - Modern Web3 Charity Design */}
+      <EnhancedHero />
 
-      {/* Human Impact Dashboard - Gamified & Positive */}
-      <section id="impact-dashboard-section" className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-        <HumanImpactDashboard />
+      {/* Modern Dashboard - Complete UI with all components */}
+      <section id="impact-dashboard-section">
+        <ModernDashboard />
+      </section>
+
+      {/* Enhanced Transaction Flow */}
+      <section className="bg-gradient-to-br from-teal-900 via-emerald-800 to-green-900 py-12 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <EnhancedTransactionFlow />
+        </div>
       </section>
 
       {/* Impact Hero Section */}
       <ImpactHero />
 
       {/* Complete Workflow Section */}
-      <section id="workflow-section" className="bg-gradient-to-br from-purple-50 to-blue-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="workflow-section" className="bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 py-12 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-lime-400/5 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <WorkflowDiagram />
         </div>
       </section>
 
       {/* Pool Statistics Section */}
-      <section id="pool-section" className="bg-white">
-        <PoolBalance />
+      <section id="pool-section" className="bg-gradient-to-br from-teal-950 via-emerald-900 to-green-950 py-12">
+        <GreenPoolBalance />
       </section>
 
       {/* World Map Section */}
-      <section id="world-map-section" className="bg-gradient-to-br from-blue-50 to-cyan-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="world-map-section" className="bg-gradient-to-br from-green-900 via-teal-800 to-emerald-900 py-12 relative overflow-hidden">
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <WorldMap />
         </div>
       </section>
 
       {/* Redistribution Timeline Section */}
-      <section id="timeline-section" className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="timeline-section" className="bg-gradient-to-br from-emerald-950 via-teal-900 to-green-900 py-12 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lime-400/5 rounded-full blur-3xl"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <RedistributionTimeline />
         </div>
       </section>
 
       {/* KYC Section */}
-      <section id="kyc-section" className="bg-gradient-to-br from-blue-50 to-indigo-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="kyc-section" className="bg-gradient-to-br from-teal-900 via-green-800 to-emerald-900 py-12 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <KYCVerification />
         </div>
       </section>
 
       {/* Xaman Multisig Section */}
-      <section id="xaman-section" className="bg-gradient-to-br from-purple-50 to-pink-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="xaman-section" className="bg-gradient-to-br from-green-950 via-emerald-900 to-teal-950 py-12 relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <XamanWalletConnect />
         </div>
       </section>
 
       {/* SBT (Soulbound Token) Section */}
-      <section id="sbt-section" className="bg-gradient-to-br from-purple-50 to-blue-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Your Impact NFT</h2>
+      <section id="sbt-section" className="bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 py-12 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <h2 className="text-3xl font-bold text-white mb-8 drop-shadow-lg">🎨 Your Impact NFT</h2>
           <SBTDisplay />
         </div>
       </section>
 
       {/* Demo Flow Section */}
-      <section id="demo-section" className="bg-white py-12">
+      <section id="demo-section" className="bg-gradient-to-br from-teal-950 via-green-900 to-emerald-950 py-12">
         <DemoFlow />
       </section>
 
       {/* NGO Directory Section */}
-      <section id="ngo-section" className="bg-gray-50">
-        <NGOList />
+      <section id="ngo-section" className="bg-gradient-to-br from-green-900 via-emerald-800 to-teal-900 py-12">
+        <GreenNGOList />
       </section>
 
       {/* NFT Gallery Section */}
-      <section id="nft-section" className="bg-white">
-        <NFTGallery />
+      <section id="nft-section" className="bg-gradient-to-br from-emerald-950 via-teal-900 to-green-950 py-12">
+        <GreenNFTGallery />
       </section>
 
       {/* Impact NFT Section */}
-      <section id="impact-nft-section" className="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-12">
-        <ImpactNFTDisplay autoRefresh={false} />
+      <section id="impact-nft-section" className="bg-gradient-to-br from-teal-900 via-green-800 to-emerald-900 py-12 relative overflow-hidden">
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="relative z-10">
+          <ImpactNFTDisplay autoRefresh={false} />
+        </div>
       </section>
 
       {/* Governance Section */}
-      <section id="governance-section" className="bg-gray-50">
-        <GovernanceVoting />
+      <section id="governance-section" className="bg-gradient-to-br from-green-950 via-emerald-900 to-teal-950 py-12">
+        <GreenGovernanceVoting />
       </section>
 
       {/* Climate Impact Section */}
-      <section id="impact-section" className="bg-white">
-        <ClimateImpactMode />
+      <section id="impact-section" className="bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 py-12">
+        <GreenClimateImpactMode />
       </section>
 
       {/* QR Code Generator Section */}
-      <section id="qr-section" className="bg-gray-50">
-        <QRCodeDemo />
+      <section id="qr-section" className="bg-gradient-to-br from-teal-950 via-green-900 to-emerald-950 py-12">
+        <GreenQRCodeDemo />
       </section>
 
       {/* On-Chain Explorer Section */}
-      <section id="onchain-section" className="bg-white">
+      <section id="onchain-section" className="bg-gradient-to-br from-green-900 via-teal-800 to-emerald-900 py-12">
         <OnChainExplorer />
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gradient-to-br from-emerald-950 via-green-950 to-teal-950 text-white py-12 border-t-2 border-emerald-500/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* About */}

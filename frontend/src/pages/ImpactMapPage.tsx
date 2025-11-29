@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { SimpleImpactMap, Project } from '../components/map/SimpleImpactMap';
+import { RealWorldMap, Project } from '../components/map/RealWorldMap';
 
 // Mock data - in production, fetch from API
 const MOCK_PROJECTS: Project[] = [
@@ -323,10 +323,10 @@ export const ImpactMapPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Map */}
+          {/* Map - REAL Google Maps-like Interactive Map */}
           <div className="col-span-9">
             <div className="bg-white rounded-lg shadow overflow-hidden" style={{ height: '700px' }}>
-              <SimpleImpactMap
+              <RealWorldMap
                 projects={MOCK_PROJECTS}
                 onProjectClick={handleProjectClick}
                 filters={filters}

@@ -55,27 +55,103 @@ code {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Shimmer effect for progress bars */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
 }
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar for Web3 vibes */
+body {
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for Green Eco vibes */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #f0f9ff, #e0e7ff);
+  background: linear-gradient(to bottom, #064e3b, #065f46);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #00D4FF, #9333EA);
-  border-radius: 5px;
+  background: linear-gradient(to bottom, #10b981, #84cc16);
+  border-radius: 6px;
+  border: 2px solid #064e3b;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #00F0FF, #B794F6);
+  background: linear-gradient(to bottom, #34d399, #a3e635);
+}
+
+/* Custom Map Marker Styles */
+.custom-marker-enhanced .marker-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  padding: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: inherit;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 3px 14px rgba(0,0,0,0.15);
+}
+
+/* Map Container Styles */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.leaflet-control-zoom a {
+  border: none !important;
+  background: white !important;
+  color: #6366f1 !important;
+  font-size: 20px !important;
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  transition: all 0.2s;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #6366f1 !important;
+  color: white !important;
 }
