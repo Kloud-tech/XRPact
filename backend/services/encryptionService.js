@@ -5,7 +5,7 @@
  * Utilise AES-256-CBC avec clé stockée dans les variables d'environnement
  */
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 class EncryptionService {
     constructor() {
@@ -99,4 +99,4 @@ class EncryptionService {
     }
 }
 
-module.exports = new EncryptionService();
+export default new EncryptionService();

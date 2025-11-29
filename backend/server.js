@@ -11,46 +11,47 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// XRPL Client
-let client;
-
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/xrpl-impact-map';
+let mongoConnected = false;
 
-async function connectMongoDB() {
+async function initMongoDB() {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connecté à MongoDB');
+    console.log(`   Database: ${mongoose.connection.name}`);
+    mongoConnected = true;
   } catch (error) {
-    console.error('❌ Erreur de connexion MongoDB:', error);
-    console.log('💡 Conseil: Installez MongoDB localement ou utilisez MongoDB Atlas');
-    console.log('   Pour MongoDB local: brew install mongodb-community (macOS)');
-    console.log('   Pour MongoDB Atlas: https://www.mongodb.com/cloud/atlas');
+    console.error('❌ Erreur connexion MongoDB:', error.message);
+    console.log('⚠️  Mode MOCK (sans base de données)');
   }
 }
+
+// XRPL Client
+let client;
 
 // Initialiser la connexion XRPL
 async function initXRPL() {
   try {
-    // Testnet par défaut pour les escrows
-    client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+    const network = process.env.XRPL_NETWORK || 'wss://alphanet.nerdnest.xyz';
+    client = new xrpl.Client(network);
     await client.connect();
-    console.log('✅ Connecté à XRPL Testnet');
+    console.log('✅ Connecté à XRPL');
+    console.log(`   Network: ${network}`);
   } catch (error) {
     console.error('❌ Erreur de connexion XRPL:', error);
   }
 }
 
-// ============================================================================
-// ROUTES EXISTANTES
-// ============================================================================
+// Routes
 
 // Health check
-app.get('/api/health', async (req, res) => {
-  res.json({
-    status: 'OK',
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
     xrpl: client?.isConnected() || false,
-    mongodb: mongoose.connection.readyState === 1
+    mongodb: mongoConnected,
+    mode: mongoConnected ? 'mongodb' : 'mock'
   });
 });
 
@@ -58,7 +59,7 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/account/:address', async (req, res) => {
   try {
     const { address } = req.params;
-
+    
     if (!client?.isConnected()) {
       return res.status(503).json({ error: 'XRPL client non connecté' });
     }
@@ -71,9 +72,9 @@ app.get('/api/account/:address', async (req, res) => {
 
     res.json(accountInfo.result);
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       error: 'Erreur lors de la récupération du compte',
-      details: error.message
+      details: error.message 
     });
   }
 });
@@ -96,9 +97,9 @@ app.get('/api/transactions/:address', async (req, res) => {
 
     res.json(txHistory.result);
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       error: 'Erreur lors de la récupération des transactions',
-      details: error.message
+      details: error.message 
     });
   }
 });
@@ -109,8 +110,8 @@ app.post('/api/send', async (req, res) => {
     const { seed, destination, amount } = req.body;
 
     if (!seed || !destination || !amount) {
-      return res.status(400).json({
-        error: 'Paramètres manquants: seed, destination, amount requis'
+      return res.status(400).json({ 
+        error: 'Paramètres manquants: seed, destination, amount requis' 
       });
     }
 
@@ -138,9 +139,9 @@ app.post('/api/send', async (req, res) => {
       result: result.result
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       error: 'Erreur lors de l\'envoi de la transaction',
-      details: error.message
+      details: error.message 
     });
   }
 });
@@ -149,7 +150,7 @@ app.post('/api/send', async (req, res) => {
 app.post('/api/wallet/generate', (req, res) => {
   try {
     const wallet = xrpl.Wallet.generate();
-
+    
     res.json({
       address: wallet.address,
       publicKey: wallet.publicKey,
@@ -158,67 +159,41 @@ app.post('/api/wallet/generate', (req, res) => {
       warning: '⚠️ Sauvegardez ces informations en lieu sûr!'
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       error: 'Erreur lors de la génération du wallet',
-      details: error.message
+      details: error.message 
     });
   }
 });
 
-// ============================================================================
-// NOUVELLES ROUTES ESCROW
-// ============================================================================
-
-const escrowRoutes = require('./routes/escrows');
-app.use('/api/escrows', escrowRoutes);
-
-// ============================================================================
-// DÉMARRAGE DU SERVEUR
-// ============================================================================
-
+// Démarrer le serveur
 app.listen(PORT, async () => {
-  console.log('\n' + '='.repeat(80));
-  console.log('🚀 XRPL Impact Map - Backend API');
-  console.log('='.repeat(80));
-  console.log(`📡 Serveur démarré sur http://localhost:${PORT}`);
-  console.log('');
-
-  // Connexions
-  await Promise.all([
-    connectMongoDB(),
-    initXRPL()
-  ]);
-
-  console.log('');
-  console.log('📋 Routes disponibles:');
-  console.log('   GET  /api/health');
-  console.log('   GET  /api/account/:address');
-  console.log('   GET  /api/transactions/:address');
-  console.log('   POST /api/send');
-  console.log('   POST /api/wallet/generate');
-  console.log('');
-  console.log('   📦 ESCROWS:');
-  console.log('   POST /api/escrows              - Créer un escrow');
-  console.log('   GET  /api/escrows              - Lister les escrows');
-  console.log('   GET  /api/escrows/:id          - Détails d\'un escrow');
-  console.log('   POST /api/escrows/:id/validate - Valider avec photos');
-  console.log('   POST /api/escrows/:id/unlock   - Débloquer manuellement');
-  console.log('   POST /api/escrows/:id/cancel   - Annuler (clawback)');
-  console.log('');
-  console.log('='.repeat(80) + '\n');
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`🚀 Serveur backend XRPL démarré`);
+  console.log(`${'='.repeat(60)}`);
+  console.log(`📍 Port: ${PORT}`);
+  console.log(`🌐 API: http://localhost:${PORT}`);
+  console.log(`💚 Health: http://localhost:${PORT}/api/health`);
+  console.log(`${'='.repeat(60)}`);
+  
+  await initMongoDB();
+  await initXRPL();
+  
+  console.log(`${'='.repeat(60)}`);
+  console.log(mongoConnected ? '✅ MongoDB: Connecté' : '⚠️  MongoDB: Mode MOCK');
+  console.log(client?.isConnected() ? '✅ XRPL: Connecté' : '❌ XRPL: Déconnecté');
+  console.log(`${'='.repeat(60)}\n`);
 });
 
 // Gérer la fermeture propre
 process.on('SIGINT', async () => {
   console.log('\n👋 Fermeture du serveur...');
-
   if (client?.isConnected()) {
     await client.disconnect();
   }
-
-  if (mongoose.connection.readyState === 1) {
+  if (mongoConnected) {
     await mongoose.disconnect();
+    console.log('✅ MongoDB déconnecté');
   }
-
   process.exit(0);
 });
