@@ -2,19 +2,26 @@
  * Wallet Button Component
  *
  * Displays wallet connection button with status
+ * Supports both GemWallet and xrpl-connect web component
  */
 
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, LogOut, AlertCircle } from 'lucide-react';
 import { useWallet } from '../../contexts/WalletContext';
+import { WalletConnector } from './WalletConnector';
 
 export const WalletButton: React.FC = () => {
-  const { address, isConnected, isConnecting, error, connect, disconnect, isInstalled } = useWallet();
+  const { address, isConnected, isConnecting, error, connect, disconnect, isInstalled, statusMessage } = useWallet();
 
   const truncateAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+
+  // Check if xrpl-connect is available
+  const hasXrplConnect = typeof window !== 'undefined' &&
+    (customElements.get('xrpl-wallet-connector') !== undefined ||
+      (window as any).xrplConnect !== undefined);
 
   if (!isInstalled) {
     return (
@@ -27,7 +34,7 @@ export const WalletButton: React.FC = () => {
         whileTap={{ scale: 0.95 }}
       >
         <AlertCircle className="w-5 h-5" />
-        Install GemWallet
+        Installer Wallet
       </motion.a>
     );
   }
@@ -56,6 +63,39 @@ export const WalletButton: React.FC = () => {
     );
   }
 
+  // If xrpl-connect is available, show the web component
+  if (hasXrplConnect) {
+    return (
+      <div className="flex flex-col items-end gap-2">
+        <WalletConnector />
+        {statusMessage && (
+          <motion.p
+            className={`text-sm px-3 py-1 rounded-lg ${statusMessage.type === 'success'
+                ? 'bg-green-50 text-green-700'
+                : statusMessage.type === 'error'
+                  ? 'bg-red-50 text-red-700'
+                  : 'bg-blue-50 text-blue-700'
+              }`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {statusMessage.message}
+          </motion.p>
+        )}
+        {error && (
+          <motion.p
+            className="text-red-400 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {error}
+          </motion.p>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback to GemWallet button
   return (
     <div className="flex flex-col items-end gap-2">
       <motion.button

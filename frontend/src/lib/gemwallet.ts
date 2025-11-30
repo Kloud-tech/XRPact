@@ -29,9 +29,23 @@ export const isGemWalletInstalled = (): boolean => {
   if (typeof window === 'undefined') return false;
 
   // Check for GemWallet in various locations
-  return 'gemWallet' in window ||
-         ('xrpToolkit' in window && !!(window as any).xrpToolkit?.gemWallet) ||
-         !!(window as any).GemWallet;
+  const hasGemWallet = 'gemWallet' in window;
+  const hasXRPToolkit = 'xrpToolkit' in window && !!(window as any).xrpToolkit?.gemWallet;
+  const hasGemWalletCapital = !!(window as any).GemWallet;
+  const hasIsGemWalletInstalled = typeof (window as any).isGemWalletInstalled === 'function' && (window as any).isGemWalletInstalled();
+
+  const installed = hasGemWallet || hasXRPToolkit || hasGemWalletCapital || hasIsGemWalletInstalled;
+
+  if (installed) {
+    console.log('[GemWallet] Detection:', {
+      gemWallet: hasGemWallet,
+      xrpToolkit: hasXRPToolkit,
+      GemWallet: hasGemWalletCapital,
+      isGemWalletInstalled: hasIsGemWalletInstalled
+    });
+  }
+
+  return installed;
 };
 
 /**
