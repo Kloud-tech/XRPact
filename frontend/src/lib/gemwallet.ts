@@ -122,25 +122,86 @@ export const sendPayment = async (
   amount: string
 ): Promise<string> => {
   if (!isGemWalletInstalled()) {
-    throw new Error('GemWallet is not installed');
+    throw new Error('GemWallet is not installed. Please install it from https://gemwallet.app/');
   }
 
   try {
     const wallet = getGemWallet();
+    
     const payment: PaymentRequest = {
       amount,
       destination,
     };
 
-    const response: PaymentResponse = await wallet.sendPayment(payment);
+    console.log('[GemWallet] Sending payment:', payment);
+    console.log('[GemWallet] Available methods:', {
+      signPayment: typeof wallet.signPayment,
+      submitPayment: typeof wallet.submitPayment,
+      sendPayment: typeof wallet.sendPayment,
+    });
+    
+    // Try submitPayment first (most recent API - v3.5+)
+    if (typeof wallet.submitPayment === 'function') {
+      console.log('[GemWallet] Using submitPayment API (v3.5+)');
+      const response = await wallet.submitPayment({
+        transaction: {
+          TransactionType: 'Payment',
+          Destination: destination,
+          Amount: amount,
+        }
+      });
+      console.log('[GemWallet] Payment response:', response);
+      
+      if (response?.result?.hash) {
+        return response.result.hash;
+      }
+      if (response?.hash) {
+        return response.hash;
+      }
+    }
+    
+    // Try signPayment (v3+)
+    if (typeof wallet.signPayment === 'function') {
+      console.log('[GemWallet] Using signPayment API (v3+)');
+      const response = await wallet.signPayment(payment);
+      console.log('[GemWallet] Payment response:', response);
+      
+      if (response?.result?.hash) {
+        return response.result.hash;
+      }
+      if (response?.hash) {
+        return response.hash;
+      }
+    }
+    
+    // Fall back to older API (sendPayment - v2)
+    if (typeof wallet.sendPayment === 'function') {
+      console.log('[GemWallet] Using sendPayment API (v2)');
+      const response: PaymentResponse = await wallet.sendPayment(payment);
+      console.log('[GemWallet] Payment response:', response);
 
-    if (!response?.result?.hash) {
-      throw new Error('Payment failed - no transaction hash received');
+      if (response?.result?.hash) {
+        return response.result.hash;
+      }
+      
+      if (response && typeof response === 'object' && 'hash' in response) {
+        return (response as any).hash;
+      }
     }
 
-    return response.result.hash;
+    throw new Error('GemWallet payment method not available. Please update your GemWallet extension to the latest version from https://gemwallet.app/');
   } catch (error: any) {
     console.error('[GemWallet] Payment failed:', error);
+    
+    // Provide helpful error messages
+    if (error.message?.includes('denied') || error.message?.includes('reject') || error.message?.includes('cancel')) {
+      throw new Error('Payment cancelled by user');
+    }
+    
+    if (error.message?.includes('insufficient')) {
+      throw new Error('Insufficient XRP balance');
+    }
+    
     throw new Error(error.message || 'Payment failed');
   }
 };

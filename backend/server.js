@@ -45,6 +45,7 @@ async function initXRPL() {
 
 // Import des routes
 const aiRoutes = require('./routes/ai');
+const donationsRoutes = require('./routes/donations');
 
 // Routes
 
@@ -61,6 +62,9 @@ app.get('/api/health', (req, res) => {
 
 // Routes IA
 app.use('/api/ai', aiRoutes);
+
+// Routes Donations (Smart Escrow)
+app.use('/api/donations', donationsRoutes);
 
 // Obtenir les infos d'un compte
 app.get('/api/account/:address', async (req, res) => {

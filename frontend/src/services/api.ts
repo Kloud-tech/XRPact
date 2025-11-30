@@ -7,7 +7,7 @@
 import axios from 'axios';
 import { Project } from '../components/map/RealWorldMap';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/xrpl';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -106,6 +106,28 @@ export const addValidationProof = async (
     return response.data.project;
   } catch (error) {
     console.error(`[API] Failed to add validation to project ${projectId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Create a donation with escrow
+ */
+export const createDonation = async (donationData: {
+  donorAddress: string;
+  amount: number;
+  txHash: string;
+  beneficiaryAddress: string;
+  projectId: string;
+  projectName: string;
+  projectDescription?: string;
+  deadlineDays?: number;
+}) => {
+  try {
+    const response = await api.post('/donations/create', donationData);
+    return response.data;
+  } catch (error) {
+    console.error('[API] Failed to create donation:', error);
     throw error;
   }
 };

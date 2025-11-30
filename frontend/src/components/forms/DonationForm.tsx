@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Heart, Loader, CheckCircle, AlertCircle } from 'lucide-react';
 import { useWallet } from '../../contexts/WalletContext';
 import { sendPayment } from '../../lib/gemwallet';
-import api from '../../services/api';
+import { createDonation } from '../../services/api';
 
 interface DonationFormProps {
   poolAddress?: string;
@@ -17,7 +17,7 @@ interface DonationFormProps {
 }
 
 export const DonationForm: React.FC<DonationFormProps> = ({
-  poolAddress = 'rXRPLImpactPool',
+  poolAddress = 'rN7n7otQDd6FczFgLdkqfHRSEeGe3N5Ewk', // XRPact Pool Wallet
   onSuccess
 }) => {
   const { address, isConnected } = useWallet();
@@ -48,18 +48,28 @@ export const DonationForm: React.FC<DonationFormProps> = ({
       // Send payment via GemWallet
       const txHash = await sendPayment(poolAddress, amount);
 
-      // Register donation with backend
-      await api.post('/deposit', {
+      // Register donation with backend as escrow
+      // Funds will be locked until photo validation
+      const response = await createDonation({
         donorAddress: address,
         amount: donationAmount,
         txHash,
+        beneficiaryAddress: poolAddress,
+        projectId: 'global-pool',
+        projectName: 'XRPact Impact Pool',
+        projectDescription: 'Perpetual yield generation for humanitarian projects',
+        deadlineDays: 90
       });
 
-      setSuccess(`Donation successful! TX: ${txHash.slice(0, 10)}...`);
-      setAmount('');
+      if (response.success) {
+        setSuccess(`Donation successful! TX: ${txHash.slice(0, 16)}...`);
+        setAmount('');
 
-      if (onSuccess) {
-        onSuccess(txHash);
+        if (onSuccess) {
+          onSuccess(txHash);
+        }
+      } else {
+        throw new Error(response.message || 'Donation registration failed');
       }
     } catch (err: any) {
       console.error('[DonationForm] Failed:', err);

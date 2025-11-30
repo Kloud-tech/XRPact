@@ -54,11 +54,11 @@ app.use(express.json());
 // ============================================================================
 // Import MongoDB Routes (with escrows)
 // ============================================================================
-// Temporarily disabled - needs conversion to ES modules
-// import { createRequire } from 'module';
-// const require = createRequire(import.meta.url);
-// const escrowRoutes = require('../routes/escrows.js');
-// app.use('/api/escrows', escrowRoutes);
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const donationsRoutes = require('../routes/donations.js');
+const escrowRoutes = require('../routes/escrows.js');
+const aiRoutes = require('../routes/ai.js');
 
 
 // ============================================================================
@@ -66,6 +66,9 @@ app.use(express.json());
 // ============================================================================
 app.use('/api/xrpl', xrplRoutes);
 app.use('/api/v1/emergency', emergencyRoutes);
+app.use('/api/donations', donationsRoutes);
+app.use('/api/escrows', escrowRoutes);
+app.use('/api/ai', aiRoutes);
 
 // ============================================================================
 // Health Check

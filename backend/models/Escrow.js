@@ -38,7 +38,8 @@ const escrowSchema = new mongoose.Schema({
 
     sequence: {
         type: Number,
-        required: true
+        required: false,
+        default: 0
     },
 
     txHash: {
@@ -50,17 +51,20 @@ const escrowSchema = new mongoose.Schema({
     // Secrets (CHIFFRÉS!)
     oracleSecret: {
         type: String,
-        required: true
+        required: false,
+        default: 'n/a'
     },
 
     fulfillment: {
         type: String,
-        required: true
+        required: false,
+        default: 'n/a'
     },
 
     condition: {
         type: String,
-        required: true
+        required: false,
+        default: 'n/a'
     },
 
     // Détails de l'escrow
@@ -81,7 +85,8 @@ const escrowSchema = new mongoose.Schema({
 
     deadline: {
         type: Number,
-        required: true
+        required: false,
+        default: () => Math.floor(Date.now() / 1000) + (90 * 24 * 60 * 60)
     },
 
     // Jalons (si applicable)

@@ -111,12 +111,36 @@ router.post('/validate-image', upload.single('image'), async (req, res) => {
       escrow.aiValidationScore = analysisResult.analysis.aiScore;
       escrow.aiValidationDate = new Date();
       
-      // Si score élevé, auto-valider
+      // Si score élevé, auto-valider ET débloquer les fonds
       if (analysisResult.analysis.aiScore >= 85 && 
           analysisResult.analysis.confidence >= 0.8) {
         escrow.status = 'validated';
         escrow.validatedAt = new Date();
         escrow.validatedBy = 'AI-Auto';
+        
+        // Déclencher le déblocage des fonds via l'API donations
+        try {
+          const axios = require('axios');
+          const baseURL = process.env.API_BASE_URL || 'http://localhost:3001';
+          
+          console.log(`🔓 Déclenchement du déblocage pour escrow ${escrowId}...`);
+          
+          const unlockResponse = await axios.post(
+            `${baseURL}/api/donations/${escrowId}/validate`,
+            { imageValidationId: imageValidation._id }
+          );
+          
+          if (unlockResponse.data.success) {
+            console.log(`✅ Fonds débloqués: ${unlockResponse.data.unlockTxHash}`);
+            escrow.unlockTxHash = unlockResponse.data.unlockTxHash;
+            escrow.unlockedAt = new Date();
+            escrow.status = 'unlocked';
+          }
+        } catch (unlockError) {
+          console.error('❌ Erreur déblocage:', unlockError.message);
+          // Ne pas bloquer la validation si le déblocage échoue
+          // On peut réessayer plus tard
+        }
       }
       
       await escrow.save();
@@ -129,7 +153,9 @@ router.post('/validate-image', upload.single('image'), async (req, res) => {
         escrowId,
         analysis: analysisResult.analysis,
         imageHash: analysisResult.imageHash,
-        escrowUpdated: escrow.status === 'validated'
+        escrowUpdated: escrow.status === 'validated' || escrow.status === 'unlocked',
+        fundsUnlocked: escrow.status === 'unlocked',
+        unlockTxHash: escrow.unlockTxHash
       }
     });
 
