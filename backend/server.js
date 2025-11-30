@@ -43,6 +43,9 @@ async function initXRPL() {
   }
 }
 
+// Import des routes
+const aiRoutes = require('./routes/ai');
+
 // Routes
 
 // Health check
@@ -51,9 +54,13 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     xrpl: client?.isConnected() || false,
     mongodb: mongoConnected,
-    mode: mongoConnected ? 'mongodb' : 'mock'
+    mode: mongoConnected ? 'mongodb' : 'mock',
+    ai: !!process.env.OPENAI_API_KEY
   });
 });
+
+// Routes IA
+app.use('/api/ai', aiRoutes);
 
 // Obtenir les infos d'un compte
 app.get('/api/account/:address', async (req, res) => {
@@ -169,11 +176,13 @@ app.post('/api/wallet/generate', (req, res) => {
 // Démarrer le serveur
 app.listen(PORT, async () => {
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`🚀 Serveur backend XRPL démarré`);
+  console.log(`🚀 Serveur backend XRPL + IA démarré`);
   console.log(`${'='.repeat(60)}`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 API: http://localhost:${PORT}`);
   console.log(`💚 Health: http://localhost:${PORT}/api/health`);
+  console.log(`🤖 AI Validation: http://localhost:${PORT}/api/ai/validate-image`);
+  console.log(`📊 AI Stats: http://localhost:${PORT}/api/ai/stats`);
   console.log(`${'='.repeat(60)}`);
   
   await initMongoDB();
@@ -182,6 +191,7 @@ app.listen(PORT, async () => {
   console.log(`${'='.repeat(60)}`);
   console.log(mongoConnected ? '✅ MongoDB: Connecté' : '⚠️  MongoDB: Mode MOCK');
   console.log(client?.isConnected() ? '✅ XRPL: Connecté' : '❌ XRPL: Déconnecté');
+  console.log('🤖 IA: Service Python CLIP (démarrez avec: cd IA-Image && python api.py)');
   console.log(`${'='.repeat(60)}\n`);
 });
 

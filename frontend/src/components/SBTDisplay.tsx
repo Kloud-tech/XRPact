@@ -116,7 +116,7 @@ export const SBTDisplay: React.FC<SBTDisplayProps> = ({ donorAddress, nftTokenId
     try {
       setVoting(true);
       const res = await fetch(
-        `/api/xrpl/sbt/${sbtData.nftTokenId}/vote`,
+        `http://localhost:3000/api/xrpl/sbt/${sbtData.nftTokenId}/vote`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -147,7 +147,7 @@ export const SBTDisplay: React.FC<SBTDisplayProps> = ({ donorAddress, nftTokenId
 
     try {
       const res = await fetch(
-        `/api/xrpl/sbt/${sbtData.nftTokenId}/export`
+        `http://localhost:3000/api/xrpl/sbt/${sbtData.nftTokenId}/export`
       );
 
       if (res.ok) {

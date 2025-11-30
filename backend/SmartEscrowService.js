@@ -47,8 +47,10 @@ exports.SmartEscrowService = void 0;
 const xrpl_1 = require("xrpl");
 const cc = __importStar(require("five-bells-condition"));
 const crypto = __importStar(require("crypto"));
+const governanceAI = require("./services/governance-ai.service");
+
 // ============================================================================
-// SMART ESCROW SERVICE
+// SMART ESCROW SERVICE (AI-Enhanced)
 // ============================================================================
 class SmartEscrowService {
     /**
@@ -57,6 +59,16 @@ class SmartEscrowService {
      */
     constructor(xrplServerUrl = 'wss://s.altnet.rippletest.net:51233') {
         this.client = new xrpl_1.Client(xrplServerUrl);
+        
+        // Vérifier disponibilité de l'IA de gouvernance
+        governanceAI.checkAvailability()
+            .then(available => {
+                if (available) {
+                    console.log('✅ Governance AI disponible - paramètres optimisés');
+                } else {
+                    console.log('⚠️  Governance AI non disponible - paramètres par défaut');
+                }
+            });
     }
     // ==========================================================================
     // HELPERS - CRYPTO-CONDITIONS (PREIMAGE SHA256)

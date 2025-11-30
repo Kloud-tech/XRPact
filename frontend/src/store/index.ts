@@ -122,7 +122,7 @@ export const useStore = create<AppState>()(
       fetchPool: async () => {
         try {
           set({ isLoading: true, error: null });
-          const response = await fetch('/api/xrpl/pool');
+          const response = await fetch('http://localhost:3001/api/xrpl/pool');
           const data = await response.json();
 
           if (data.success) {
@@ -141,7 +141,7 @@ export const useStore = create<AppState>()(
 
       fetchDonor: async (address: string) => {
         try {
-          const response = await fetch(`/api/xrpl/donor/${address}`);
+          const response = await fetch(`http://localhost:3001/api/xrpl/donor/${address}`);
           const data = await response.json();
 
           if (data.success) {
@@ -161,7 +161,7 @@ export const useStore = create<AppState>()(
       fetchNgos: async () => {
         try {
           set({ isLoading: true, error: null });
-          const response = await fetch('/api/xrpl/ngos');
+          const response = await fetch('http://localhost:3001/api/xrpl/ngos');
           const data = await response.json();
 
           if (data.success) {
@@ -194,7 +194,7 @@ export const useStore = create<AppState>()(
         try {
           set({ isLoading: true, error: null });
 
-          const response = await fetch('/api/xrpl/deposit', {
+          const response = await fetch('http://localhost:3001/api/xrpl/deposit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -226,7 +226,7 @@ export const useStore = create<AppState>()(
       // Simulate Profit
       simulateProfit: async () => {
         try {
-          const response = await fetch('/api/xrpl/simulate-profit', {
+          const response = await fetch('http://localhost:3001/api/xrpl/simulate-profit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ profitPercentage: 0.67 }),

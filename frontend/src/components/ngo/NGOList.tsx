@@ -108,7 +108,7 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
               setValidating(true);
               console.log(`[NGOList] Validating NGO: ${ngo.id}`);
               
-              const response = await fetch(`/api/xrpl/validate-ngo`, {
+              const response = await fetch(`http://localhost:3001/api/xrpl/validate-ngo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ngoId: ngo.id }),

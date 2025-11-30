@@ -101,7 +101,7 @@ const escrowSchema = new mongoose.Schema({
     // État et validation
     status: {
         type: String,
-        enum: ['pending', 'validating', 'approved', 'rejected', 'unlocked', 'cancelled', 'expired'],
+        enum: ['pending', 'validating', 'validated', 'approved', 'rejected', 'unlocked', 'cancelled', 'expired'],
         default: 'pending',
         index: true
     },
@@ -111,6 +111,11 @@ const escrowSchema = new mongoose.Schema({
         url: String,
         uploadedAt: Date,
         metadata: Object
+    }],
+
+    validationImages: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ImageValidation'
     }],
 
     aiValidationScore: Number,
@@ -123,6 +128,10 @@ const escrowSchema = new mongoose.Schema({
     },
 
     aiValidationDate: Date,
+
+    validatedAt: Date,
+    
+    validatedBy: String,
 
     rejectionReason: String,
 

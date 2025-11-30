@@ -45,7 +45,7 @@ export const useWebSocket = (url?: string): UseWebSocketReturn => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
 
-  const socketUrl = url || import.meta.env.VITE_WS_URL || window.location.origin;
+  const socketUrl = url || import.meta.env.VITE_WS_URL || 'http://localhost:3001';
 
   useEffect(() => {
     const newSocket = io(socketUrl, {

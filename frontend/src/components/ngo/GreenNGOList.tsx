@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Leaf,
   Heart,
@@ -20,7 +21,7 @@ import {
   CheckCircle,
   TrendingUp,
   Award,
-  Sparkles,
+  Map,
 } from 'lucide-react';
 import { useStore } from '../../store';
 
@@ -49,6 +50,7 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
   const Icon = CATEGORY_ICONS[ngo.category as keyof typeof CATEGORY_ICONS] || Globe;
   const categoryColor = CATEGORY_COLORS[ngo.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.other;
   const { fetchNgos } = useStore();
+  const navigate = useNavigate();
   const [validating, setValidating] = React.useState(false);
 
   // Score color based on impact score
@@ -180,7 +182,7 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
               setValidating(true);
               console.log(`[NGOList] Validating NGO: ${ngo.id}`);
 
-              const response = await fetch(`/api/xrpl/validate-ngo`, {
+              const response = await fetch(`http://localhost:3001/api/xrpl/validate-ngo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ngoId: ngo.id }),
@@ -223,6 +225,18 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
           {validating ? '⏳ Validating...' : ngo.verified ? '✓ Validated' : '🔍 Validate'}
         </motion.button>
 
+        {/* Map View Button */}
+        <motion.button
+          onClick={() => navigate('/impact-map')}
+          className="px-4 py-2.5 rounded-xl text-sm font-bold bg-blue-500/20 text-blue-200 border-2 border-blue-400/30 hover:bg-blue-500/30 transition-all flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title="View projects on map"
+        >
+          <Map className="w-4 h-4" />
+          <span>Map</span>
+        </motion.button>
+
         {/* Website Link */}
         {ngo.website && (
           <motion.a
@@ -243,6 +257,7 @@ const NGOCard: React.FC<NGOCardProps> = ({ ngo, index }) => {
 
 export const GreenNGOList: React.FC = () => {
   const { ngos, fetchNgos, isLoading } = useStore();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<string>('all');
 
   useEffect(() => {
@@ -265,18 +280,31 @@ export const GreenNGOList: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-4"
+          className="flex items-center justify-between mb-4"
         >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            className="p-3 rounded-2xl bg-gradient-to-br from-lime-400 to-emerald-500 shadow-lg"
+          <div className="flex items-center gap-3">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="p-3 rounded-2xl bg-gradient-to-br from-lime-400 to-emerald-500 shadow-lg"
+            >
+              <Leaf className="h-8 w-8 text-white" />
+            </motion.div>
+            <h2 className="text-4xl font-bold text-white drop-shadow-lg">
+              🌍 Verified NGO Partners
+            </h2>
+          </div>
+          
+          {/* View Map Button */}
+          <motion.button
+            onClick={() => navigate('/impact-map')}
+            className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all border-2 border-blue-400/50"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Leaf className="h-8 w-8 text-white" />
-          </motion.div>
-          <h2 className="text-4xl font-bold text-white drop-shadow-lg">
-            🌍 Verified NGO Partners
-          </h2>
+            <Map className="w-6 h-6" />
+            <span>View Projects on Map</span>
+          </motion.button>
         </motion.div>
         <p className="text-emerald-200 text-lg">
           Transparent, verified organizations making real impact worldwide
